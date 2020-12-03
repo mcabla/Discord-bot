@@ -1,5 +1,6 @@
 module.exports = {
     name: 'ping',
+    aliases: false, // Can be an array of strings with aliases for this command
     description: 'Ping!',
     cooldown: 5,
     args: false,
