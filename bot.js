@@ -6,6 +6,7 @@ const Discord = require('discord.js');
 const config = require('./config.json');
 const prefix = config.prefix;
 const client = new Discord.Client();
+const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 client.autoReactions = new Discord.Collection();
 const autoReactionFiles = fs.readdirSync('./auto-reactions').filter(file => file.endsWith('.js'));
@@ -51,8 +52,11 @@ function addReactions(message) {
 }
 
 function executeCommand(message){
-    if (!message.content.startsWith(prefix) || message.author.bot) return;
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const prefixRegex = new RegExp(`^(<@!?${client.user.id}>|${escapeRegex(prefix)})\\s*`);
+    if (!prefixRegex.test(message.content) || message.author.bot) return;
+
+    const [, matchedPrefix] = message.content.match(prefixRegex);
+    const args = message.content.slice(matchedPrefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
     if (!command) return;
