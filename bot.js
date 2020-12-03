@@ -41,7 +41,7 @@ function addReactions(message) {
         for(const autoReaction of client.autoReactions.values()){
             if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases && messageContentLowerCase.includes(autoReaction.aliases))) && !message.content.includes(`:${autoReaction.name}:`)) {
                 try {
-                    autoReaction.execute(message, client);
+                    autoReaction.execute(message);
                 } catch (error) {
                     console.error(error);
                 }

@@ -2,7 +2,7 @@ module.exports = {
     name: 'bier',
     aliases: ['beer'],
     description: 'reacts with beer emoji',
-    execute(message, client) {
+    execute(message) {
         message.react('🍻');
     },
 };
