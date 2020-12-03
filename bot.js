@@ -37,11 +37,9 @@ client.login(process.env.DISCORD_TOKEN);
 
 function addReactions(message) {
     let messageContentLowerCase = message.content.toLowerCase();
-    if (client.autoReactions.keyArray().some(reactionName => messageContentLowerCase.includes(reactionName))) {
-        for(const reactionName of client.autoReactions.keyArray()){
-            console.log(`${reactionName}!`);
-            if (messageContentLowerCase.includes(reactionName) && !message.content.includes(`:${reactionName}:`)) {
-                const autoReaction = client.autoReactions.get(reactionName);
+    if (client.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases && messageContentLowerCase.includes(autoReaction.aliases)))) {
+        for(const autoReaction of client.autoReactions.values()){
+            if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases && messageContentLowerCase.includes(autoReaction.aliases))) && !message.content.includes(`:${autoReaction.name}:`)) {
                 try {
                     autoReaction.execute(message, client);
                 } catch (error) {
