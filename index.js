@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const fs = require('fs');
+const fetch = require('node-fetch');
 const Discord = require('discord.js');
 const config = require('./config.json');
 const prefix = config.prefix;
