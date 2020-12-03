@@ -40,7 +40,11 @@ function addReactions(message) {
         for(let reactionName of client.autoReactions.keyArray()){
             console.log(`${reactionName}!`);
             if (messageContentLowerCase.includes(reactionName) && !message.content.includes(`:${reactionName}:`)) {
-                client.autoReactions.get(reactionName).execute(message, client);
+                try {
+                    client.autoReactions.get(reactionName).execute(message, client);
+                } catch (error) {
+                    console.error(error);
+                }
             }
         }
     }
