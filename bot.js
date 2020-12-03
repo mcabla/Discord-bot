@@ -1,36 +1,61 @@
 // Run dotenv
 require('dotenv').config();
 
+const fs = require('fs');
 const Discord = require('discord.js');
 const config = require('./config.json');
-const client = new Discord.Client();
 const prefix = config.prefix;
+const client = new Discord.Client();
+
+client.autoReactions = new Discord.Collection();
+const autoReactionFiles = fs.readdirSync('./auto-reactions').filter(file => file.endsWith('.js'));
+for (const file of autoReactionFiles) {
+    const autoReaction = require(`./auto-reactions/${file}`);
+    client.autoReactions.set(autoReaction.name, autoReaction);
+}
+
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.name, command);
+}
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
 
-client.on('message', msg => {
-  if (msg.content.toLowerCase().includes("bier")) {
-    msg.react('🍻');
-  }
-  if (msg.content.toLowerCase().includes("ideefix") && !msg.content.includes(":ideefix:")) {
-	  const ayy = client.emojis.cache.find(emoji => emoji.name === "ideefix");
-	  msg.react(ayy);
-  }
-  if (msg.content.toLowerCase().includes("hospitalia") && !msg.content.includes(":hospitalia:")) {
-	  const ayy = client.emojis.cache.find(emoji => emoji.name === "hospitalia");
-	  msg.react(ayy);
-  }
-  if (msg.content.toLowerCase().includes("acantha") && !msg.content.includes(":acantha:")) {
-	  const ayy = client.emojis.cache.find(emoji => emoji.name === "acantha");
-	  msg.react(ayy);
-  }
-  if (msg.content.toLowerCase().includes("regent") && !msg.content.includes(":regent:")) {
-	  const ayy = client.emojis.cache.find(emoji => emoji.name === "regent");
-	  msg.react(ayy);
-  }
+client.on('message', message => {
+    addReactions(message);
+    executeCommand(message);
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+function addReactions(message) {
+    let messageContentLowerCase = message.content.toLowerCase();
+    if (client.autoReactions.keyArray().some(reactionName => messageContentLowerCase.includes(reactionName))) {
+        // There's at least one
+        for(let reactionName of client.autoReactions.keyArray()){
+            console.log(`${reactionName}!`);
+            if (messageContentLowerCase.includes(reactionName) && !message.content.includes(`:${reactionName}:`)) {
+                client.autoReactions.get(reactionName).execute(message, client);
+            }
+        }
+    }
+}
+
+function executeCommand(message){
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
+    if (!client.commands.has(command)) return;
+
+    try {
+        client.commands.get(command).execute(message, args);
+    } catch (error) {
+        console.error(error);
+        message.reply('there was an error trying to execute that command!');
+    }
+}
