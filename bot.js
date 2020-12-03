@@ -36,12 +36,12 @@ client.login(process.env.DISCORD_TOKEN);
 function addReactions(message) {
     let messageContentLowerCase = message.content.toLowerCase();
     if (client.autoReactions.keyArray().some(reactionName => messageContentLowerCase.includes(reactionName))) {
-        // There's at least one
-        for(let reactionName of client.autoReactions.keyArray()){
+        for(const reactionName of client.autoReactions.keyArray()){
             console.log(`${reactionName}!`);
             if (messageContentLowerCase.includes(reactionName) && !message.content.includes(`:${reactionName}:`)) {
+                const autoReaction = client.autoReactions.get(reactionName);
                 try {
-                    client.autoReactions.get(reactionName).execute(message, client);
+                    autoReaction.execute(message, client);
                 } catch (error) {
                     console.error(error);
                 }
@@ -53,11 +53,12 @@ function addReactions(message) {
 function executeCommand(message){
     if (!message.content.startsWith(prefix) || message.author.bot) return;
     const args = message.content.slice(prefix.length).trim().split(/ +/);
-    const command = args.shift().toLowerCase();
-    if (!client.commands.has(command)) return;
+    const commandName = args.shift().toLowerCase();
+    if (!client.commands.has(commandName)) return;
+    const command = client.commands.get(commandName);
 
     try {
-        client.commands.get(command).execute(message, args);
+        command.execute(message, args);
     } catch (error) {
         console.error(error);
         message.reply('there was an error trying to execute that command!');
