@@ -5,7 +5,7 @@ The bot has been tweaked for usage on the [Ideefix](http://www.ideefix.skghendt.
 ### Run this bot by yourself
 To run this bot, you will need to follow [this](https://discordjs.guide/preparations) guide.  
 ```
-Note: The guide recommends you to put your discord token inside config.js.
+Note: The guide recommends you to put your discord token inside config.json.
       This however could result in pushing your private token to Github. 
       Our bot prevents this by requiring you to put your token inside the .env file.
       If you do not have the .env file, you can simply create it.
