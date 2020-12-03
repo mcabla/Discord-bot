@@ -1,6 +1,6 @@
 module.exports = {
     name: 'activity',
-    description: 'Ping!',
+    description: 'Set the bot\'s activity!',
     cooldown: 5,
     execute(message, args) {
         message.client.user.setActivity(args.join(' '));
