@@ -7,6 +7,8 @@ module.exports = {
     usage: false, // Can be a string with an explanation of the required arguments
     guildOnly: false,
     execute(message, args) {
-        message.channel.send('Pong!');
+        message.channel.send(`Pong! (${message.client.ws.ping}ms)`).then(sent => {
+            sent.edit(`Pong! (${message.client.ws.ping}ms - ${sent.createdTimestamp - message.createdTimestamp}ms)`);
+        });
     },
 };
