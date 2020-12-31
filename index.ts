@@ -1,36 +1,45 @@
-// Run dotenv
-require('dotenv').config();
+import {Collection, Message, PartialTextBasedChannelFields, TextChannel} from "discord.js";
+import {CustomClient} from "./CustomClient";
+import * as fs from "fs";
+import {DISCORD_TOKEN, GUILD_ID, LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "./config";
+import {IAutoReaction} from "./IAutoReaction";
+import {ICommand} from "./ICommand";
 
-const fs = require('fs');
-const fetch = require('node-fetch');
-const Discord = require('discord.js');
-const config = require('./config.json');
-const prefix = config.prefix;
-const client = new Discord.Client();
-const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// const fetch = require('node-fetch');
+const prefix = PREFIX;
+const client = new CustomClient();
+const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-client.autoReactions = new Discord.Collection();
-const autoReactionFiles = fs.readdirSync('./auto-reactions').filter(file => file.endsWith('.js'));
+const autoReactionFiles = fs.readdirSync('./auto-reactions').filter((file: string) => file.endsWith('.ts'));
 for (const file of autoReactionFiles) {
-    const autoReaction = require(`./auto-reactions/${file}`);
-    client.autoReactions.set(autoReaction.name, autoReaction);
+    import(`./auto-reactions/${file}`)
+        .then(({default: autoReaction}) => {
+            const ar: IAutoReaction = new autoReaction();
+            client.autoReactions.set(ar.name, ar)
+        }).catch(console.log);
+
 }
 
-client.commands = new Discord.Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./commands').filter((file: string) => file.endsWith('.ts'));
 for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+    import(`./commands/${file}`)
+        .then(({default: command}) => {
+            const cmd: ICommand = new command();
+            client.commands.set(cmd.name, cmd);
+        }).catch(console.log);
 }
 
-const cooldowns = new Discord.Collection();
+const cooldowns = new Collection<string, Collection<string, number>>();
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    console.log(`Logged in as ${client.user?.tag}!`);
+    client.user?.setActivity(`${prefix}help`, { type: "LISTENING" });
 });
+client.on("warn", console.log);
+client.on("error", console.error);
 
 
-client.on('message', message => {
+client.on('message', (message) => {
     addReactions(message);
     executeCommand(message);
 });
@@ -44,13 +53,14 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     if (addedRoles.size > 0) console.log(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
 });
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(DISCORD_TOKEN)
+    .catch(console.log);
 
-function addReactions(message) {
+function addReactions(message: Message) {
     let messageContentLowerCase = message.content.toLowerCase();
-    if (client.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases && messageContentLowerCase.includes(autoReaction.aliases)))) {
+    if (client.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase)))) {
         for(const autoReaction of client.autoReactions.values()){
-            if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases && messageContentLowerCase.includes(autoReaction.aliases))) && !message.content.includes(`:${autoReaction.name}:`)) {
+            if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase))) && !message.content.includes(`:${autoReaction.name}:`)) {
                 try {
                     autoReaction.execute(message);
                 } catch (error) {
@@ -61,13 +71,15 @@ function addReactions(message) {
     }
 }
 
-function executeCommand(message){
-    const prefixRegex = new RegExp(`^(<@!?${client.user.id}>|${escapeRegex(prefix)})\\s*`);
+function executeCommand(message: Message){
+    const prefixRegex = new RegExp(`^(<@!?${client.user?.id}>|${escapeRegex(prefix)})\\s*`);
     if (!prefixRegex.test(message.content) || message.author.bot) return;
 
-    const [, matchedPrefix] = message.content.match(prefixRegex);
-    const args = message.content.slice(matchedPrefix.length).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
+    const matchedPrefix = message.content.match(prefixRegex);
+    if (!matchedPrefix || matchedPrefix.length <= 1) return;
+    const args = message.content.slice(matchedPrefix[1].length).trim().split(/ +/);
+    const commandName = args.shift()?.toLowerCase();
+    if (commandName == undefined) return;
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
     if (!command) return;
 
@@ -75,7 +87,7 @@ function executeCommand(message){
         return message.reply('I can\'t execute that command inside DMs!');
     }
 
-    if (command.args && !args.length) {
+    if (command.args.length > 0 && !args.length) {
         let reply = `You didn't provide any arguments, ${message.author}!`;
         if (command.usage) {
             reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
@@ -84,14 +96,16 @@ function executeCommand(message){
     }
 
     if (!cooldowns.has(command.name)) {
-        cooldowns.set(command.name, new Discord.Collection());
+        cooldowns.set(command.name, new Collection<string, number>());
     }
 
     const now = Date.now();
     const timestamps = cooldowns.get(command.name);
     const cooldownAmount = (command.cooldown || 3) * 1000;
 
+    // @ts-ignore
     if (timestamps.has(message.author.id)) {
+        // @ts-ignore
         const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
         if (now < expirationTime) {
@@ -99,7 +113,9 @@ function executeCommand(message){
             return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
         }
     } else {
+        // @ts-ignore
         timestamps.set(message.author.id, now);
+        // @ts-ignore
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
     }
 
@@ -107,6 +123,6 @@ function executeCommand(message){
         command.execute(message, args);
     } catch (error) {
         console.error(error);
-        message.reply('There was an error trying to execute that command!');
+        message.reply('There was an error trying to execute that command!').then();
     }
 }

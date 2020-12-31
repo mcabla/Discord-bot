@@ -1,9 +1,10 @@
 const AssistantV2 = require('ibm-watson/assistant/v2'); //Watson Assistant
 const { IamAuthenticator } = require('ibm-watson/auth'); //Watson Auth
+const Configuration = require('../config/index.ts');
 
-const ASSISTANT_ID= process.env.ASSISTANT_ID; //from UI
-const ASSISTANT_TTS_URL=process.env.ASSISTANT_TTS_URL; //service-credentials-blog
-const ASSISTANT_TTS_API_KEY=process.env.ASSISTANT_TTS_API_KEY; //service-credentials-blog
+const ASSISTANT_ID= Configuration.ASSISTANT_ID; //from UI
+const ASSISTANT_TTS_URL= Configuration.ASSISTANT_TTS_URL; //service-credentials-blog
+const ASSISTANT_TTS_API_KEY= Configuration.ASSISTANT_TTS_API_KEY; //service-credentials-blog
 const ASST_API_VERSION = '2020-05-04';
 
 const assistantId = ASSISTANT_ID;

@@ -1,0 +1,12 @@
+{
+  "prefix": "?",
+  "logChannelId": "",
+  "statusChannelId": "",
+  "guildId": "",
+  "discordToken": "",
+  "assistantId": "",
+  "assistantTTSUrl": "",
+  "assistantTTSApiKey": "",
+  "assistantSTTUrl": "",
+  "assistantSTTApiKey": ""
+}
