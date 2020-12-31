@@ -64,6 +64,7 @@ function addReactions(message: Message) {
                 try {
                     autoReaction.execute(message);
                 } catch (error) {
+                    sendToLogChannel(error);
                     console.error(error);
                 }
             }
@@ -124,5 +125,28 @@ function executeCommand(message: Message){
     } catch (error) {
         console.error(error);
         message.reply('There was an error trying to execute that command!').then();
+    }
+}
+
+function sendToStatusChannel(str: string){
+    sendToChannel(STATUS_CHANNEL_ID, str);
+}
+
+function sendToLogChannel(str: string){
+    sendToChannel(LOG_CHANNEL_ID, str);
+}
+
+function sendToChannel(channelId: string, str: string, guildId?: string){
+    try {
+        if (guildId == undefined) guildId = GUILD_ID;
+        // @ts-ignore
+        const guilds = client.guilds.cache.get(guildId);
+        if (!guilds) throw new Error(`Guild (${guildId}) not found`);
+        let channel = guilds.channels.cache.get(channelId);
+        if (!channel || !channel.isText()) throw new Error(`Channel (${channelId}) not found`);
+        const txtChannel: PartialTextBasedChannelFields = channel;
+        txtChannel.send(str).then();
+    } catch (error) {
+        console.log(error);
     }
 }
