@@ -1,4 +1,4 @@
-import {Message} from "discord.js";
+import {Message, PermissionResolvable} from "discord.js";
 
 export interface ICommand {
     readonly name: string;
@@ -8,5 +8,6 @@ export interface ICommand {
     readonly args: string[];
     readonly usage: string;
     readonly guildOnly: boolean;
+    readonly permissions: PermissionResolvable[];
     execute(message: Message, args: string[]): void;
 }

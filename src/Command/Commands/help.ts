@@ -1,15 +1,13 @@
 import { Message } from "discord.js";
 import {ICommand} from "../ICommand";
-import {PREFIX} from "../config";
+import {PREFIX} from "../../Config";
+import {ACommand} from "../ACommand";
 
-export default class Help implements ICommand {
+export default class Help extends ACommand {
     name = 'help';
-    aliases = ['commands'];
     description = 'List all of my commands or info about a specific command.';
     usage = '[command name]';
-    cooldown = 5;
-    args = [];
-    guildOnly = false;
+    aliases = ['commands', 'h'];
     execute(message: Message, args: string[]) {
         const data = [];
         // @ts-ignore
