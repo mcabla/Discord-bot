@@ -10,6 +10,6 @@ export abstract class ACommand implements ICommand {
     readonly cooldown: number = 5;
     readonly guildOnly: boolean = false;
     readonly permissions: any[] = [];
-
+    readonly bypassChannelId: string | undefined;
     abstract execute(message: Message, args: string[]): void;
 }

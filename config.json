@@ -5,6 +5,7 @@
   "guildId": "",
   "discordToken": "",
   "assistantId": "",
+  "assistantChannelId": "",
   "assistantTTSUrl": "",
   "assistantTTSApiKey": "",
   "assistantSTTUrl": "",

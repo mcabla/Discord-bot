@@ -9,5 +9,6 @@ export interface ICommand {
     readonly usage: string;
     readonly guildOnly: boolean;
     readonly permissions: PermissionResolvable[];
+    readonly bypassChannelId: string | undefined;
     execute(message: Message, args: string[]): void;
 }

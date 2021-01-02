@@ -25,17 +25,25 @@ export class Commands {
         }
     }
 
+    private bypassChannelCommand(message: Message): string {
+        let cmd: ICommand | undefined = this.client.commands.find(cmd => cmd.bypassChannelId != null && cmd.bypassChannelId === message.channel.id);
+        return cmd?.name ?? "";
+    }
+
     public executeCommand(message: Message){
         const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${this.escapeRegex(PREFIX)})\\s*`);
-        if (!prefixRegex.test(message.content) || message.author.bot) return;
+        const bypass = this.bypassChannelCommand(message);
+        if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot) return;
 
         const matchedPrefix = message.content.match(prefixRegex);
-        if (!matchedPrefix || matchedPrefix.length <= 1) return;
-        const args = message.content.slice(matchedPrefix[1].length).trim().split(/ +/);
-        const commandName = args.shift()?.toLowerCase();
+        let length = (!matchedPrefix || matchedPrefix.length <= 1 )? 0 : matchedPrefix[1].length;
+        const args = message.content.slice(length).trim().split(/ +/);
+        const commandName = (bypass.length > 0)? bypass: args.shift()?.toLowerCase();
         if (commandName == undefined) return;
         const command = this.client.commands.get(commandName) || this.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-        if (!command) return;
+        if (!command) {
+            return message.reply('I did not understand you. Please try again.\nContact your administrator if you think that this is an error.');
+        };
 
         if (command.guildOnly && message.channel.type === 'dm') {
             return message.reply('I can\'t execute that command inside DMs!');
