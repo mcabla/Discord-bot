@@ -11,7 +11,7 @@ export default class Watson extends ACommand  {
     bypassChannelId = ASSISTANT_CHANNEL_ID;
     execute(message: Message, args: string[]) {
         let text = args.join(' ');
-        const author = message.author.username;
+        const author = message.author.toString();
         callAssistant(text).then((txt: string) => {
             txt = txt.replace('{user}', `${author}`);
             message.channel.send(txt);
