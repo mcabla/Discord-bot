@@ -1,34 +1,34 @@
-//import AssistantV2 from 'ibm-watson/assistant/v2'; //Watson Assistant
-import { IamAuthenticator } from 'ibm-watson/auth';
-import {AssistantV2} from "ibm-watson/sdk"; //Watson Auth
-const Config = require('../Config/Config.ts');
+import { IamAuthenticator } from 'ibm-watson/auth'; // Watson Auth
+import {AssistantV2} from "ibm-watson/sdk";
+import {ASSISTANT_ID, ASSISTANT_TTS_API_KEY, ASSISTANT_TTS_URL} from "../Config/Config"; // Watson Assistant
 
-const ASSISTANT_TTS_URL= Config.ASSISTANT_TTS_URL; //service-credentials-blog
 const ASST_API_VERSION = '2020-05-04';
+const DISABLE_SSL = false;
 
 let assistant: AssistantV2;
-if (Config.ASSISTANT_ID && Config.ASSISTANT_ID.length > 0) {
-    let disableSSL = false;
-    let auth: IamAuthenticator;
 
+if (ASSISTANT_ID && ASSISTANT_ID.length > 0) {
     try {
-        auth = new IamAuthenticator({ apikey: Config.ASSISTANT_TTS_API_KEY });
+        const auth = new IamAuthenticator({ apikey: ASSISTANT_TTS_API_KEY });
         assistant = new AssistantV2({
             version: ASST_API_VERSION,
             authenticator: auth,
             url: ASSISTANT_TTS_URL,
-            disableSslVerification: disableSSL,
+            disableSslVerification: DISABLE_SSL,
         });
     } catch (e) {
         console.log(e.result.stringify);
     }
+    console.log("Watson has been initialised!");
+} else {
+    console.log("Watson was not initialised!");
 }
 
 async function getMessage(request: string, sessionId: string) {
     return assistant.message(
         {
             input: { text: request },
-            assistantId: Config.ASSISTANT_ID,
+            assistantId: ASSISTANT_ID,
             sessionId: sessionId
         })
         .then(response => {
@@ -58,11 +58,14 @@ async function getMessage(request: string, sessionId: string) {
         });
 }
 
-export async function callAssistant(request: string) {
+export function callAssistant(request: string) {
     try {
-        const sessionId = (await assistant.createSession({ assistantId: Config.ASSISTANT_ID })).result.session_id;
-        return await getMessage(request, sessionId).then(txt => txt.substr(1, txt.length-2));
+        return assistant.createSession({assistantId: ASSISTANT_ID})
+            .then(res => getMessage(request, res.result.session_id))
+            .then(txt => txt.substr(1, txt.length-2));
     } catch (error) {
         console.error(error);
     }
+
+    return new Promise<string>(() => "An error occurred. Please contact your administrator.");
 }
