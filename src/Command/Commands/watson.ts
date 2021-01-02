@@ -1,4 +1,4 @@
-import {callAssistant} from "../../Watson";
+import {callAssistant} from "../../Watson/Watson";
 import { Message } from "discord.js";
 import {ACommand} from "../ACommand";
 export default class Watson extends ACommand  {
