@@ -2,7 +2,7 @@ import {CustomClient} from "../Client/CustomClient";
 import fs from "fs";
 import {ICommand} from "./ICommand";
 import {Collection, Message} from "discord.js";
-import {PREFIX} from "../Config";
+import {PREFIX} from "../Config/Config";
 
 export class Commands {
     readonly client: CustomClient;

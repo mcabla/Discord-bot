@@ -1,6 +1,6 @@
 const AssistantV2 = require('ibm-watson/assistant/v2'); //Watson Assistant
 const { IamAuthenticator } = require('ibm-watson/auth'); //Watson Auth
-const Configuration = require('../Config/index.ts');
+const Configuration = require('../Config/Config.ts');
 
 const ASSISTANT_ID= Configuration.ASSISTANT_ID; //from UI
 const ASSISTANT_TTS_URL= Configuration.ASSISTANT_TTS_URL; //service-credentials-blog

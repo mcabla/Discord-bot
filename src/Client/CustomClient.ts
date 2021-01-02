@@ -3,7 +3,7 @@ import {AAutoReaction} from "../AutoReaction/AAutoReaction";
 import {ACommand} from "../Command/ACommand";
 import {AutoReactions} from "../AutoReaction/AutoReactions";
 import {Commands} from "../Command/Commands";
-import {GUILD_ID, LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config";
+import {GUILD_ID, LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Config";
 
 export class CustomClient extends Client {
     musicQueue = new Collection();
