@@ -6,7 +6,7 @@ const ASST_API_VERSION = '2020-05-04';
 const DISABLE_SSL = false;
 
 let assistant: AssistantV2;
-
+let session: Promise<AssistantV2.Response<AssistantV2.SessionResponse>>;
 if (ASSISTANT_ID && ASSISTANT_ID.length > 0) {
     try {
         const auth = new IamAuthenticator({ apikey: ASSISTANT_TTS_API_KEY });
@@ -16,10 +16,12 @@ if (ASSISTANT_ID && ASSISTANT_ID.length > 0) {
             url: ASSISTANT_TTS_URL,
             disableSslVerification: DISABLE_SSL,
         });
+        session = assistant.createSession({assistantId: ASSISTANT_ID});
+
+        console.log("Watson has been initialised!");
     } catch (e) {
         console.log(e.result.stringify);
     }
-    console.log("Watson has been initialised!");
 } else {
     console.log("Watson was not initialised!");
 }
@@ -60,7 +62,7 @@ async function getMessage(request: string, sessionId: string) {
 
 export function callAssistant(request: string) {
     try {
-        return assistant.createSession({assistantId: ASSISTANT_ID})
+        return session
             .then(res => getMessage(request, res.result.session_id))
             .then(txt => txt.substr(1, txt.length-2));
     } catch (error) {
