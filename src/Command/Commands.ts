@@ -43,7 +43,7 @@ export class Commands {
         const command = this.client.commands.get(commandName) || this.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         if (!command) {
             return message.reply('I did not understand you. Please try again.\nContact your administrator if you think that this is an error.');
-        };
+        }
 
         if (command.guildOnly && message.channel.type === 'dm') {
             return message.reply('I can\'t execute that command inside DMs!');
