@@ -2,7 +2,7 @@ import {CustomClient} from "../Client/CustomClient";
 import fs from "fs";
 import {ICommand} from "./ICommand";
 import {Collection, Message} from "discord.js";
-import {PREFIX} from "../Config/Config";
+import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Config";
 
 export class Commands {
     readonly client: CustomClient;
@@ -31,6 +31,7 @@ export class Commands {
     }
 
     public executeCommand(message: Message){
+        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
         const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${this.escapeRegex(PREFIX)})\\s*`);
         const bypass = this.bypassChannelCommand(message);
         if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot) return;
