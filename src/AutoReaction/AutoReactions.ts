@@ -2,6 +2,7 @@ import {CustomClient} from "../Client/CustomClient";
 import fs from "fs";
 import {IAutoReaction} from "./IAutoReaction";
 import {Message} from "discord.js";
+import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Config/Config";
 
 export class AutoReactions {
     readonly client: CustomClient;
@@ -24,6 +25,7 @@ export class AutoReactions {
     }
 
     public addReactions(message: Message) {
+        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
         let messageContentLowerCase = message.content.toLowerCase();
         if (this.client.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase)))) {
             for(const autoReaction of this.client.autoReactions.values()){
