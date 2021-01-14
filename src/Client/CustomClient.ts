@@ -7,9 +7,7 @@ import {GUILD_ID, LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Con
 
 export class CustomClient extends Client {
     musicQueue = new Collection();
-    autoReactions = new Collection<string, AAutoReaction>();
     autoReaction: AutoReactions;
-    commands = new Collection<string, ACommand>();
     command: Commands;
 
     constructor() {

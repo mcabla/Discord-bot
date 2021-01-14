@@ -1,11 +1,14 @@
 import {CustomClient} from "../Client/CustomClient";
 import fs from "fs";
 import {IAutoReaction} from "./IAutoReaction";
-import {Message} from "discord.js";
+import {Collection, Message} from "discord.js";
 import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Config/Config";
+import {AAutoReaction} from "./AAutoReaction";
 
 export class AutoReactions {
     readonly client: CustomClient;
+    readonly autoReactions = new Collection<string, AAutoReaction>();
+
 
     constructor(client: CustomClient) {
         this.client = client;
@@ -18,7 +21,7 @@ export class AutoReactions {
             import(`./AutoReactions/${file}`)
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
-                    this.client.autoReactions.set(ar.name, ar)
+                    this.autoReactions.set(ar.name, ar)
                 }).catch(console.log);
 
         }
@@ -27,8 +30,8 @@ export class AutoReactions {
     public addReactions(message: Message) {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
         let messageContentLowerCase = message.content.toLowerCase();
-        if (this.client.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase)))) {
-            for(const autoReaction of this.client.autoReactions.values()){
+        if (this.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase)))) {
+            for(const autoReaction of this.autoReactions.values()){
                 if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase))) && !message.content.includes(`:${autoReaction.name}:`)) {
                     try {
                         autoReaction.execute(message);

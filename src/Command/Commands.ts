@@ -3,9 +3,11 @@ import fs from "fs";
 import {ICommand} from "./ICommand";
 import {Collection, Message} from "discord.js";
 import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Config";
+import {ACommand} from "./ACommand";
 
 export class Commands {
     readonly client: CustomClient;
+    readonly commands = new Collection<string, ACommand>();
     readonly cooldowns = new Collection<string, Collection<string, number>>();
     escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -20,13 +22,13 @@ export class Commands {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {
                     const cmd: ICommand = new command();
-                    this.client.commands.set(cmd.name, cmd);
+                    this.commands.set(cmd.name, cmd);
                 }).catch(console.log);
         }
     }
 
     private bypassChannelCommand(message: Message): string {
-        let cmd: ICommand | undefined = this.client.commands.find(cmd => cmd.bypassChannelId != null && cmd.bypassChannelId === message.channel.id);
+        let cmd: ICommand | undefined = this.commands.find(cmd => cmd.bypassChannelId != null && cmd.bypassChannelId === message.channel.id);
         return cmd?.name ?? "";
     }
 
@@ -41,7 +43,7 @@ export class Commands {
         const args = message.content.slice(length).trim().split(/ +/);
         const commandName = (bypass.length > 0)? bypass: args.shift()?.toLowerCase();
         if (commandName == undefined) return;
-        const command = this.client.commands.get(commandName) || this.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+        const command = this.commands.get(commandName) || this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         if (!command) {
             return message.reply('I did not understand you. Please try again.\nContact your administrator if you think that this is an error.');
         }
