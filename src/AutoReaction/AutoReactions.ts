@@ -29,7 +29,18 @@ export class AutoReactions {
 
     public addReactions(message: Message) {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
-        let messageContentLowerCase = message.content.toLowerCase();
+
+        let messageContent = message.content;
+        message.mentions.users.forEach((k,v)=> {
+            let displayName;
+            if (message.guild !== null){
+                displayName = message.guild.member(k)?.displayName;
+            }
+            displayName = displayName || k.tag || k.username;
+            messageContent = messageContent.replace('<@!' + v + '>',displayName);
+        });
+
+        let messageContentLowerCase = messageContent.toLocaleLowerCase();
         if (this.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase)))) {
             for(const autoReaction of this.autoReactions.values()){
                 if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase))) && !message.content.includes(`:${autoReaction.name}:`)) {
