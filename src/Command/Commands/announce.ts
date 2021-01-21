@@ -123,7 +123,7 @@ export default class Announce extends ACommand  {
                         m.fetchWebhook()
                             .then(wh => `${wh.url}/messages/${id}`)
                             .then(url => {
-                                const params = `{"content": "${text}"}`
+                                const params = `{"content": "${text}"}`;
                                 Announce.apiPatch(url, params)
                                     .then(() => {
                                         this.finalize(message, m, id);
