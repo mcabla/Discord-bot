@@ -26,18 +26,19 @@ export default class Announce extends ACommand  {
                             let iconUrl = message.guild?.iconURL();
                             if (iconUrl) {
                                 guildChannel.createWebhook('Announcement', { avatar: iconUrl})
-                                    .then(wh => webhook = wh)
+                                    .then(wh => Announce.send(message, id || 'new', text, wh))
                                     .catch(console.log);
                             } else {
                                 guildChannel.createWebhook('Announcement')
-                                    .then(wh => webhook = wh)
+                                    .then(wh => Announce.send(message, id || 'new', text, wh))
                                     .catch(console.log);
                             }
                         } else {
                             console.log(`Somehow ${ANNOUNCEMENT_CHANNEL_ID} is not a text channel anymore.`)
                         }
+                    } else {
+                        Announce.send(message, id || 'new', text, webhook);
                     }
-                    Announce.send(message, id || 'new', text, webhook);
             }).catch((e) => {
                console.log('A problem occurred while fetching the webhooks for this channel.', e);
             });
