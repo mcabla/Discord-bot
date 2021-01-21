@@ -88,7 +88,7 @@ export default class Announce extends ACommand  {
     private static editMessage(message: Message, id: string | undefined, text: string){
         if (id === undefined || !this.isNumber(id)) {
             if (message.client instanceof CustomClient) {
-                message.reply('The first argument was not correct.').then();
+                message.reply(`The first argument (${id}) was not correct.`).then();
             }
             return;
         }
@@ -145,7 +145,7 @@ export default class Announce extends ACommand  {
     private static isNumber(value: string | number): boolean {
             return ((value != null) &&
                 (value !== '') &&
-                !isNaN(Number(value.toString())));
+                /^\d+$/.test(value.toString()));
         }
 
     private static api<T>(url: string): Promise<T> {
