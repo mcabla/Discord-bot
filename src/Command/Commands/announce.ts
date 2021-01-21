@@ -76,6 +76,18 @@ export default class Announce extends ACommand  {
                         avatarURL: res.photo
                     }).then(m => {
                         this.finalize(message, m, id);
+                    }).then(() => {
+                        let iconUrl = message.guild?.iconURL();
+                        if (iconUrl) {
+                            webhook.edit({
+                                name: 'Announcement',
+                                avatar: iconUrl
+                            }).then();
+                        } else {
+                            webhook.edit({
+                                name: 'Announcement'
+                            }).then();
+                        }
                     });
                 })
                 .catch((e)=> {
