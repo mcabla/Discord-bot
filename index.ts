@@ -8,7 +8,6 @@ const port = 3000;
 app.get('/', (req: any, res: any) => res.send('Hello World!'));
 app.listen(3000, () => console.log(`Example app listening at http://localhost:${port}`));
 
-// const fetch = require('node-fetch');
 const client = new CustomClient();
 
 client.login(DISCORD_TOKEN)
