@@ -12,6 +12,7 @@ export default class Announce extends ACommand  {
     args = ['new or new-private or id of message that should be edited.', 'message content'];
     cooldown = 5;
     permissions = ['ADMINISTRATOR'];
+    guildOnly = true;
     bypassChannelId = ANNOUNCEMENT_CHANNEL_ID;
     execute(message: Message, args: string[]) {
         if (message.webhookID) return; //In case this gets removed on a higher level.
