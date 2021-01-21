@@ -2,6 +2,7 @@ import { Message } from "discord.js";
 import {ICommand} from "../ICommand";
 import {PREFIX} from "../../Config/Config";
 import {ACommand} from "../ACommand";
+import {CustomClient} from "../../Client/CustomClient";
 
 export default class Help extends ACommand {
     name = 'help';
@@ -11,11 +12,11 @@ export default class Help extends ACommand {
     execute(message: Message, args: string[]) {
         const data = [];
         // @ts-ignore
-        const commands = message.client.commands;
+        const commands = message.client.command.commands;
 
         if (!args.length) {
             data.push('Here\'s a list of all my commands:');
-            data.push(commands.map((command: any) => command.name).join(', '));
+            data.push(commands?.map((command: any) => command.name).join(', '));
             data.push(`\nYou can send \`${PREFIX}help [command name]\` to get info on a specific command!`);
 
             return message.author.send(data, { split: true })
