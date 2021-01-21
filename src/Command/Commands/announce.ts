@@ -96,15 +96,22 @@ export default class Announce extends ACommand  {
         if (guildChannel?.isText()) {
             guildChannel.messages.fetch(id)
                 .then(m => {
-                    m.fetchWebhook()
-                        .then(wh => `${wh.url}/messages/${id}`)
-                        .then(url => {
-                            const params = `{"content": "${text}"}`
-                            Announce.apiPatch(url, params)
-                                .then(() => {
-                                    this.finalize(message, m, id);
-                                }).catch(console.log);
-                        }).catch(console.log);
+                    if (m.webhookID){
+                        m.fetchWebhook()
+                            .then(wh => `${wh.url}/messages/${id}`)
+                            .then(url => {
+                                const params = `{"content": "${text}"}`
+                                Announce.apiPatch(url, params)
+                                    .then(() => {
+                                        this.finalize(message, m, id);
+                                    }).catch(console.log);
+                            }).catch(console.log);
+                    } else if (m.author.bot && m.author.id == message.client.user?.id) {
+                            m.edit(text).then();
+                    } else {
+                        message.reply("I'm not authorised to edit this message.").then();
+                    }
+
                 }).catch(console.log);
         }
     }
