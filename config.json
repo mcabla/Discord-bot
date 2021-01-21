@@ -2,6 +2,7 @@
   "prefix": "?",
   "logChannelId": "",
   "statusChannelId": "",
+  "announcementChannelId": "",
   "guildId": "",
   "discordToken": "",
   "assistantId": "",

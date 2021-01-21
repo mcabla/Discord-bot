@@ -4,6 +4,7 @@ import config from '../../config.json';
 export const PREFIX: string = process.env.PREFIX || config.prefix;
 export const LOG_CHANNEL_ID: string = process.env.LOG_CHANNEL_ID || config.logChannelId;
 export const STATUS_CHANNEL_ID: string = process.env.STATUS_CHANNEL_ID || config.statusChannelId;
+export const ANNOUNCEMENT_CHANNEL_ID: string = process.env.ANNOUNCEMENT_CHANNEL_ID || config.announcementChannelId;
 export const GUILD_ID: string = process.env.GUILD_ID || config.guildId;
 export const DISCORD_TOKEN: string = process.env.DISCORD_TOKEN || config.discordToken;
 export const ASSISTANT_ID: string = process.env.ASSISTANT_ID || config.assistantId;
