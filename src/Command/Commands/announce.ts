@@ -18,6 +18,17 @@ export default class Announce extends ACommand  {
         if (message.webhookID) return; //In case this gets removed on a higher level.
         let id = args.shift();
         let text = args.join(' ');
+
+        if (id === undefined) return; //Should not be happen because Commands enforces the required arguments.
+
+        id = id.trimLeft();
+        let match = /[\r\n]/.exec(id);
+        if (match) {
+            let newId = id.slice(0, match.index).trim();
+            text = id.slice(match.index).trimLeft() + text;
+            id = newId;
+        }
+
         let guildChannel = message.guild?.channels.resolve(ANNOUNCEMENT_CHANNEL_ID);
         if (guildChannel?.isText()){
             if (id === 'new' || id == 'new-private') {
