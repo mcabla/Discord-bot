@@ -36,7 +36,7 @@ export class Commands {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
         const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${this.escapeRegex(PREFIX)})\\s*`);
         const bypass = this.bypassChannelCommand(message);
-        if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot) return;
+        if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return;
 
         const matchedPrefix = message.content.match(prefixRegex);
         let length = (!matchedPrefix || matchedPrefix.length <= 1 )? 0 : matchedPrefix[1].length;
