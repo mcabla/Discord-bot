@@ -14,7 +14,7 @@ export default class Watson extends ACommand  {
         const author = message.author.toString();
         callAssistant(text).then((txt: string) => {
             txt = txt.replace('{user}', `${author}`);
-            message.channel.send(txt);
-        });
+            message.channel.send(txt).then();
+        }).catch(console.log);
     }
 }
