@@ -73,7 +73,7 @@ export default class Announce extends ACommand  {
                 .then(res => {
                     webhook.send(text, {
                         username: res.name,
-                        avatarURL: res.photo
+                        avatarURL: res.photo.trim().replace(/\s/g, '%20')
                     }).then(m => {
                         this.finalize(message, m, id);
                     }).then(() => {
@@ -123,11 +123,14 @@ export default class Announce extends ACommand  {
                         m.fetchWebhook()
                             .then(wh => `${wh.url}/messages/${id}`)
                             .then(url => {
-                                const params = `{"content": "${text}"}`;
-                                Announce.apiPatch(url, params)
+                                const params = {"content": text};
+                                Announce.apiPatch(url, JSON.stringify(params))
                                     .then(() => {
                                         this.finalize(message, m, id);
-                                    }).catch(console.log);
+                                    }).catch(err => {
+                                        message.reply('An unknown error occurred!').then();
+                                        console.log(err);
+                                    });
                             }).catch(console.log);
                     } else if (m.author.bot && m.author.id == message.client.user?.id) {
                             m.edit(text).then();
@@ -165,11 +168,12 @@ export default class Announce extends ACommand  {
                 .catch(console.error);
         }
     }
+
     private static isNumber(value: string | number): boolean {
-            return ((value != null) &&
-                (value !== '') &&
-                /^\d+$/.test(value.toString()));
-        }
+        return ((value != null) &&
+            (value !== '') &&
+            /^\d+$/.test(value.toString()));
+    }
 
     private static api<T>(url: string): Promise<T> {
         return fetch(url)
@@ -182,6 +186,7 @@ export default class Announce extends ACommand  {
     }
 
     private static apiPatch<T>(url: string, params: string): Promise<T> {
+        console.log(params)
         return fetch(url, {
                 headers: {
                     'Accept': 'application/json',
