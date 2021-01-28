@@ -1,4 +1,4 @@
-import {GuildChannel, Message, Webhook} from "discord.js";
+import {GuildChannel, Message, NewsChannel, TextChannel, Webhook} from "discord.js";
 import {ACommand} from "../ACommand";
 import {ANNOUNCEMENT_CHANNEL_ID, RANDOM_PERSON_URL} from "../../Config/Config";
 import {CustomClient} from "../../Client/CustomClient";
@@ -19,93 +19,87 @@ export default class Announce extends ACommand  {
         let id = args.shift();
         let text = args.join(' ');
 
-        if (id === undefined) return; //Should not be happen because Commands enforces the required arguments.
+        if (id === undefined || id === '') return; //Should not be happen because Commands enforces the required arguments.
 
         id = id.trimLeft();
-        let match = /[\r\n]/.exec(id);
-        if (match) {
-            let newId = id.slice(0, match.index).trim();
-            text = id.slice(match.index).trimLeft() + text;
-            id = newId;
+
+        if (message.channel.id === ANNOUNCEMENT_CHANNEL_ID && !id.includes('new-private')) {
+            text = `${id} ${text}`;
+            id = 'new';
+        } else {
+            let match = /[\r\n]/.exec(id);
+            if (match) {
+                let newId = id.slice(0, match.index).trim();
+                text = id.slice(match.index).trimLeft() + text;
+                id = newId;
+            }
         }
 
-        let guildChannel = message.guild?.channels.resolve(ANNOUNCEMENT_CHANNEL_ID);
-        if (guildChannel?.isText()){
-            if (id === 'new' || id == 'new-private') {
-                guildChannel.fetchWebhooks().then( res => {
+        if (id === 'new' || id == 'new-private' || message.channel.id === ANNOUNCEMENT_CHANNEL_ID) {
+            if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){
+                message.channel.fetchWebhooks().then( res => {
                     let webhook = res.first();
                     if (webhook) {
                         Announce.send(message, id || 'new', text, webhook);
                     } else  {
                         console.log('This channel does not have any webhooks. Creating a new webhook');
-                        if (guildChannel?.isText()){ //Typescript forgot that this channel is a text channel
+                        if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){ //Typescript forgot that this channel is a text channel
                             let iconUrl = message.guild?.iconURL();
                             if (iconUrl) {
-                                guildChannel.createWebhook('Announcement', { avatar: iconUrl})
+                                message.channel.createWebhook('Announcement', { avatar: iconUrl})
                                     .then(wh => Announce.send(message, id || 'new', text, wh))
                                     .catch(console.log);
                             } else {
-                                guildChannel.createWebhook('Announcement')
+                                message.channel.createWebhook('Announcement')
                                     .then(wh => Announce.send(message, id || 'new', text, wh))
                                     .catch(console.log);
                             }
                         } else {
-                            console.log(`Somehow ${ANNOUNCEMENT_CHANNEL_ID} is not a text channel anymore.`)
-                            Announce.send(message, id || 'new', text, webhook);
+                            throw Error(`Somehow ${message.channel.id} is not a text channel anymore.`);
                         }
                     }
                 }).catch((e) => {
                     console.log('A problem occurred while fetching the webhooks for this channel.', e);
+                    message.channel.send(text).then(m => {
+                        Announce.finalize(message, m, id);
+                    });
                 });
             } else {
-                Announce.editMessage(message, id, text);
+                console.log(`${message.channel.id} is not a text channel.`);
             }
-
         } else {
-            console.log(`${ANNOUNCEMENT_CHANNEL_ID} is not a text channel or does not exists.`);
+            Announce.editMessage(message, id, text);
         }
-
     }
 
-    private static send(message: Message, id: string, text: string, webhook?: Webhook){
-        if (webhook) {
-            this.api<{id: number; name: string; photo: string}>(RANDOM_PERSON_URL)
-                .then(res => {
-                    webhook.send(text, {
-                        username: res.name,
-                        avatarURL: res.photo.trim().replace(/\s/g, '%20')
-                    }).then(m => {
-                        this.finalize(message, m, id);
-                    }).then(() => {
-                        let iconUrl = message.guild?.iconURL();
-                        if (iconUrl) {
-                            webhook.edit({
-                                name: 'Announcement',
-                                avatar: iconUrl
-                            }).then();
-                        } else {
-                            webhook.edit({
-                                name: 'Announcement'
-                            }).then();
-                        }
-                    });
-                })
-                .catch((e)=> {
-                    console.log(e);
-                    webhook.send(text).then(m => {
-                        this.finalize(message, m, id);
-                    });
+    private static send(message: Message, id: string, text: string, webhook: Webhook){
+        this.api<{id: number; name: string; photo: string}>(RANDOM_PERSON_URL)
+            .then(res => {
+                webhook.send(text, {
+                    username: res.name,
+                    avatarURL: res.photo.trim().replace(/\s/g, '%20')
+                }).then(m => {
+                    this.finalize(message, m, id);
+                }).then(() => { // Try to reset the webhook picture and name
+                    let iconUrl = message.guild?.iconURL();
+                    if (iconUrl) {
+                        webhook.edit({
+                            name: 'Announcement',
+                            avatar: iconUrl
+                        }).then();
+                    } else {
+                        webhook.edit({
+                            name: 'Announcement'
+                        }).then();
+                    }
                 });
-        } else { // Fall back on bot when there no webhook could be created.
-            let guildChannel = message.guild?.channels.resolve(ANNOUNCEMENT_CHANNEL_ID);
-            if (guildChannel?.isText()) {
-                guildChannel.send(text).then(m => {
+            })
+            .catch((e)=> {
+                console.log(e);
+                webhook.send(text).then(m => {
                     this.finalize(message, m, id);
                 });
-            } else {
-
-            }
-        }
+            }).catch(console.log);
     }
 
     private static editMessage(message: Message, id: string | undefined, text: string){
