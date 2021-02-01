@@ -3,7 +3,7 @@ import {AAutoReaction} from "../AAutoReaction";
 
 export default class Bier extends AAutoReaction {
     name = 'bier';
-    aliases = ['beer', 'gerstenat', 'pint'];
+    aliases = ['beer', 'gerstenat', 'pint', 'pintje'];
     description = 'reacts with beer emoji';
     execute(message: Message) {
         message?.react('🍻').then();
