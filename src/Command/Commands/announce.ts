@@ -2,7 +2,8 @@ import {GuildChannel, Message, NewsChannel, TextChannel, Webhook} from "discord.
 import {ACommand} from "../ACommand";
 import {ANNOUNCEMENT_CHANNEL_ID, RANDOM_PERSON_URL} from "../../Config/Config";
 import {CustomClient} from "../../Client/CustomClient";
-import fetch from 'node-fetch';
+import {API} from "../../Util/Api";
+import { STRING} from "../../Util/String";
 
 export default class Announce extends ACommand  {
     name = 'announce';
@@ -73,7 +74,7 @@ export default class Announce extends ACommand  {
     }
 
     private static send(message: Message, id: string, text: string, webhook: Webhook){
-        this.api<{id: number; name: string; photo: string}>(RANDOM_PERSON_URL)
+        API.get<{id: number; name: string; photo: string}>(RANDOM_PERSON_URL)
             .then(res => {
                 webhook.send(text, {
                     username: res.name,
@@ -103,7 +104,7 @@ export default class Announce extends ACommand  {
     }
 
     private static editMessage(message: Message, id: string | undefined, text: string){
-        if (id === undefined || !this.isNumber(id)) {
+        if (id === undefined || !STRING.isNumber(id)) {
             if (message.client instanceof CustomClient) {
                 message.reply(`The first argument (${id}) was not correct.`).then();
             }
@@ -118,7 +119,7 @@ export default class Announce extends ACommand  {
                             .then(wh => `${wh.url}/messages/${id}`)
                             .then(url => {
                                 const params = {"content": text};
-                                Announce.apiPatch(url, JSON.stringify(params))
+                                API.patch(url, JSON.stringify(params))
                                     .then(() => {
                                         this.finalize(message, m, id);
                                     }).catch(err => {
@@ -161,38 +162,5 @@ export default class Announce extends ACommand  {
                 .then(() => console.log('Crossposted message'))
                 .catch(console.error);
         }
-    }
-
-    private static isNumber(value: string | number): boolean {
-        return ((value != null) &&
-            (value !== '') &&
-            /^\d+$/.test(value.toString()));
-    }
-
-    private static api<T>(url: string): Promise<T> {
-        return fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText)
-                }
-                return response.json() as Promise<T>
-            });
-    }
-
-    private static apiPatch<T>(url: string, params: string): Promise<T> {
-        console.log(params)
-        return fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'},
-                method: 'PATCH',
-                body: params
-            }).then(response => {
-                if (!response.ok) {
-                    console.log(response);
-                    throw new Error(response.statusText)
-                }
-                return response.json() as Promise<T>
-            });
     }
 }

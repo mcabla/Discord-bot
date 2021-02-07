@@ -1,5 +1,6 @@
 import {Emoji, Message} from "discord.js";
 import {ACommand} from "../ACommand";
+import {MESSAGE} from "../../Util/Message";
 
 export default class React extends ACommand {
     name = 'react';
@@ -27,20 +28,9 @@ export default class React extends ACommand {
     }
 
     private reactWithEmoji(originalMessage: Message,message: Message, args: string[]) {
-        let letters = /[a-zA-Z]/g;
-
         let i = 0;
         args.forEach(arg => {
-            if(!letters.test(arg)){
-                message?.react(arg).then(() => i++).catch(console.log);
-            } else {
-                let emoji = message?.client.emojis.cache.find((emoji: Emoji) => emoji.name === arg);
-                if (emoji != undefined) {
-                    message.react(emoji).then(() => i++).catch(console.log);
-                } else {
-                    originalMessage.reply(`${arg} does not exist.`).then();
-                }
-            }
+            MESSAGE.react(message, arg, originalMessage);
         });
 
         setTimeout(() => {
@@ -48,6 +38,5 @@ export default class React extends ACommand {
                 originalMessage.reply(`${i} reaction(s) added.`).then();
             }
         }, 1000);
-
     }
 }

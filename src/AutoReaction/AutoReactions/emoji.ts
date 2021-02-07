@@ -2,6 +2,7 @@ import {Collection, Emoji, Message} from "discord.js";
 import {AAutoReaction} from "../AAutoReaction";
 import {CustomClient} from "../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
+import {MESSAGE} from "../../Util/Message";
 
 export default class emoji extends AAutoReaction {
     name = 'emojiAutoReaction';
@@ -28,7 +29,7 @@ export default class emoji extends AAutoReaction {
         ['regent','regent'],
     ]);
     setup(client: CustomClient): Promise<IAutoReaction> {
-        return super.setup(client).then((s)=>{
+        return super.setup(client).then(()=>{
             this.aliases = this.emojis.keyArray();
             return this;
         });
@@ -36,18 +37,9 @@ export default class emoji extends AAutoReaction {
     }
 
     execute(message: Message) {
-        let letters = /[a-zA-Z]/g;
-
         this.emojis.forEach((v,k) => {
             if (message.content.includes(k)){
-                if(!letters.test(v)){
-                    message?.react(v).then().catch(console.log);
-                } else {
-                    let emoji = message?.client.emojis.cache.find((emoji: Emoji) => emoji.name === v);
-                    if (emoji != undefined) {
-                        message.react(emoji).then().catch(console.log);
-                    }
-                }
+                MESSAGE.react(message, v);
             }
         });
 
