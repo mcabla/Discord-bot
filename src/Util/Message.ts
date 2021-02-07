@@ -15,4 +15,19 @@ export class MESSAGE{
         }
         return Promise.reject();
     }
+
+    public static parse(message: Message): Promise<string> {
+        let messageContent = message.content;
+        message.mentions.users.forEach((k,v)=> {
+            let displayName;
+            if (message.guild !== null){
+                displayName = message.guild.member(k)?.displayName;
+            }
+            displayName = displayName || k.tag || k.username;
+            messageContent = messageContent.replace('<@!' + v + '>',displayName);
+        });
+        messageContent = messageContent.toLocaleLowerCase();
+
+        return Promise.resolve(messageContent);
+    }
 }

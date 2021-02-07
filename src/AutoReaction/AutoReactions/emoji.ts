@@ -45,12 +45,15 @@ export default class emoji extends AAutoReaction {
     }
 
     execute(message: Message) {
-        this.emojis.forEach((v,k) => {
-            // @ts-ignore
-            if (message?.parsedContent.includes(k)){
-                MESSAGE.react(message, v).then().catch(console.log);
-            }
-        });
+        MESSAGE.parse(message)
+            .then(parsedContent => {
+                this.emojis.forEach((v,k) => {
+                    if (parsedContent.includes(k)){
+                        MESSAGE.react(message, v).then().catch(console.log);
+                    }
+                });
+            });
+
 
     }
 }

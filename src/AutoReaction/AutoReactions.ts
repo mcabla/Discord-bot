@@ -4,6 +4,7 @@ import {IAutoReaction} from "./IAutoReaction";
 import {Collection, Message} from "discord.js";
 import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Config/Config";
 import {AAutoReaction} from "./AAutoReaction";
+import {MESSAGE} from "../Util/Message";
 
 export class AutoReactions {
     readonly client: CustomClient;
@@ -42,45 +43,34 @@ export class AutoReactions {
     public addReactions(message: Message) {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
 
-        let messageContent = message.content;
-        message.mentions.users.forEach((k,v)=> {
-            let displayName;
-            if (message.guild !== null){
-                displayName = message.guild.member(k)?.displayName;
-            }
-            displayName = displayName || k.tag || k.username;
-            messageContent = messageContent.replace('<@!' + v + '>',displayName);
-        });
-        messageContent = messageContent.toLocaleLowerCase();
-
-        // @ts-ignore
-        message.parsedContent = messageContent;
-
-        this.triggerWords.forEach( triggerWord => {
-           if (messageContent.includes(triggerWord)){
-               this.autoReactions.forEach((v,k) => {
-                   let found = false;
-                   if (messageContent.includes(k)){
-                       found = true;
-                   } else {
-                       for (const alias of v.aliases){
-                           if (messageContent.includes(alias)){
-                               found = true;
-                               break;
-                           }
-                       }
-                   }
-                   if (found){
-                       try {
-                           v.execute(message);
-                           this.client.sendToLogChannel(`reaction added to: "${message}" (${message.id})`);
-                       } catch (error) {
-                           this.client.sendToLogChannel(error, false);
-                       }
-                   }
-               });
-           }
-        });
+        MESSAGE.parse(message)
+            .then(parsedContent => {
+                this.triggerWords.forEach( triggerWord => {
+                    if (parsedContent.includes(triggerWord)){
+                        this.autoReactions.forEach((v,k) => {
+                            let found = false;
+                            if (parsedContent.includes(k)){
+                                found = true;
+                            } else {
+                                for (const alias of v.aliases){
+                                    if (parsedContent.includes(alias)){
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (found){
+                                try {
+                                    v.execute(message);
+                                    this.client.sendToLogChannel(`reaction added to: "${message}" (${message.id})`);
+                                } catch (error) {
+                                    this.client.sendToLogChannel(error, false);
+                                }
+                            }
+                        });
+                    }
+                });
+            })
     }
 
 }
