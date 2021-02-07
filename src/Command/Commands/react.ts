@@ -30,7 +30,7 @@ export default class React extends ACommand {
     private reactWithEmoji(originalMessage: Message,message: Message, args: string[]) {
         let i = 0;
         args.forEach(arg => {
-            MESSAGE.react(message, arg, originalMessage).then().catch(console.log);
+            MESSAGE.react(message, arg, originalMessage).then(() => i++).catch(console.log);
         });
 
         setTimeout(() => {
