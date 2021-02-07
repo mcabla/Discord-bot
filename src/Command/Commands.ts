@@ -43,7 +43,7 @@ export class Commands {
         message.channel.startTyping().then();
         this.handleCommand(message, prefixRegex, bypass)
             .then(() => {
-                if (message.channel){
+                if (!message.channel.deleted){
                     message.channel.stopTyping(true);
                 }
             }).catch(console.log);
