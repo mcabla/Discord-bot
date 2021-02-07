@@ -22,10 +22,11 @@ export class AutoReactions {
             import(`./AutoReactions/${file}`)
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
-                    ar.setup(client);
-                    this.autoReactions.set(ar.name, ar);
-                    this.triggerWords.push(ar.name);
-                    ar.aliases.forEach(alias => this.triggerWords.push(alias));
+                    ar.setup(client).then((reaction) => {
+                        this.autoReactions.set(reaction.name, reaction);
+                        this.triggerWords.push(reaction.name);
+                        reaction.aliases.forEach(alias => this.triggerWords.push(alias));
+                    });
                 }).catch(console.log);
 
         }
@@ -47,7 +48,6 @@ export class AutoReactions {
 
         this.triggerWords.forEach( triggerWord => {
            if (messageContent.includes(triggerWord)){
-               console.log('message contains ' + triggerWord );
                this.autoReactions.forEach((v,k) => {
                    let found = false;
                    if (messageContent.includes(k)){

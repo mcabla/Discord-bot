@@ -5,6 +5,6 @@ export interface IAutoReaction {
     readonly name: string;
     readonly description: string;
     aliases: string[];
-    setup(client: CustomClient): void;
+    setup(client: CustomClient): Promise<IAutoReaction>;
     execute(message: Message): void;
 }

@@ -7,6 +7,9 @@ export abstract class AAutoReaction implements IAutoReaction{
     readonly abstract name: string;
     aliases: string[] = []; // Can be an array of strings with aliases for this auto reaction
 
-    setup(client: CustomClient) {}
     abstract execute(message: Message): void;
+
+    setup(client: CustomClient): Promise<IAutoReaction> {
+        return Promise.resolve(this);
+    }
 }

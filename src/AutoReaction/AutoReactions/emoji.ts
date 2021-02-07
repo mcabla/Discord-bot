@@ -1,7 +1,7 @@
 import {Collection, Emoji, Message} from "discord.js";
 import {AAutoReaction} from "../AAutoReaction";
-import {ACommand} from "../../Command/ACommand";
 import {CustomClient} from "../../Client/CustomClient";
+import {IAutoReaction} from "../IAutoReaction";
 
 export default class emoji extends AAutoReaction {
     name = 'emojiAutoReaction';
@@ -27,9 +27,12 @@ export default class emoji extends AAutoReaction {
         ['café','tkof'],
         ['regent','regent'],
     ]);
-    setup(client: CustomClient) {
-        super.setup(client);
-        this.aliases = this.emojis.keyArray();
+    setup(client: CustomClient): Promise<IAutoReaction> {
+        return super.setup(client).then((s)=>{
+            this.aliases = this.emojis.keyArray();
+            return this;
+        });
+
     }
 
     execute(message: Message) {
