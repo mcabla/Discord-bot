@@ -3,6 +3,7 @@ import {AAutoReaction} from "../AAutoReaction";
 import {CustomClient} from "../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
 import {MESSAGE} from "../../Util/Message";
+import {API} from "../../Util/Api";
 
 export default class emoji extends AAutoReaction {
     name = 'emojiAutoReaction';
@@ -28,9 +29,15 @@ export default class emoji extends AAutoReaction {
         ['café','tkof'],
         ['regent','regent'],
         ['boo','boo'],
+        ['koekje','🍪'],
+        ['cookie','🍪'],
+        ['pannenkoek','🥞'],
+        ['pancake','🥞'],
     ]);
     setup(client: CustomClient): Promise<IAutoReaction> {
-        return super.setup(client).then(()=>{
+        return super.setup(client).then(() => {
+            //API.get<string[][]>()
+        }).then(()=>{
             this.aliases = this.emojis.keyArray();
             return this;
         });
