@@ -24,8 +24,15 @@ export class AutoReactions {
                     const ar: IAutoReaction = new autoReaction();
                     ar.setup(client).then((reaction) => {
                         this.autoReactions.set(reaction.name, reaction);
-                        this.triggerWords.push(reaction.name);
-                        reaction.aliases.forEach(alias => this.triggerWords.push(alias));
+
+                        if (!this.triggerWords.some(v => v.includes(reaction.name))){
+                            this.triggerWords.push(reaction.name);
+                        }
+                        reaction.aliases.forEach(alias => {
+                            if (!this.triggerWords.some(v => v.includes(alias))) {
+                                this.triggerWords.push(alias);
+                            }
+                        });
                     });
                 }).catch(console.log);
 
