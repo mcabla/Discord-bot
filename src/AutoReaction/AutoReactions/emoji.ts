@@ -32,7 +32,7 @@ export default class emoji extends AAutoReaction {
     execute(message: Message) {
         let letters = /[a-zA-Z]/g;
 
-        this.emojis.forEach((k,v) => {
+        this.emojis.forEach((v,k) => {
             console.log(k);
             if (message.content.includes(k)){
                 console.log('-');
