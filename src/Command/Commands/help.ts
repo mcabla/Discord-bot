@@ -2,7 +2,6 @@ import { Message } from "discord.js";
 import {ICommand} from "../ICommand";
 import {PREFIX} from "../../Config/Config";
 import {ACommand} from "../ACommand";
-import {CustomClient} from "../../Client/CustomClient";
 
 export default class Help extends ACommand {
     name = 'help';
