@@ -18,13 +18,13 @@ export class MESSAGE{
 
     public static parse(message: Message): Promise<string> {
         let messageContent = message.content;
-        message.mentions.users.forEach((k,v)=> {
+        message.mentions.users.forEach((v,k)=> {
             let displayName;
             if (message.guild !== null){
-                displayName = message.guild.member(k)?.displayName;
+                displayName = message.guild.member(v)?.displayName;
             }
-            displayName = displayName || k.tag || k.username;
-            messageContent = messageContent.replace('<@!' + v + '>',displayName);
+            displayName = displayName || v.tag || v.username;
+            messageContent = messageContent.replace('<@!' + k + '>',displayName);
         });
         messageContent = messageContent.toLocaleLowerCase();
 
