@@ -11,6 +11,6 @@ export interface ICommand {
     readonly guildOnly: boolean;
     readonly permissions: PermissionResolvable[];
     readonly bypassChannelId: string | undefined;
-    setup(client: CustomClient): void;
+    setup(client: CustomClient): Promise<ICommand>;
     execute(message: Message, args: string[]): void;
 }

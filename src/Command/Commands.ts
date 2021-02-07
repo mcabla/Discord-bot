@@ -22,8 +22,9 @@ export class Commands {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {
                     const cmd: ICommand = new command();
-                    cmd.setup(client);
-                    this.commands.set(cmd.name, cmd);
+                    cmd.setup(client).then(c => {
+                        this.commands.set(cmd.name, cmd);
+                    });
                 }).catch(console.log);
         }
     }
