@@ -8,6 +8,7 @@ import {AAutoReaction} from "./AAutoReaction";
 export class AutoReactions {
     readonly client: CustomClient;
     readonly autoReactions = new Collection<string, AAutoReaction>();
+    readonly triggerWords: string[] = [];
 
 
     constructor(client: CustomClient) {
@@ -22,7 +23,9 @@ export class AutoReactions {
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
                     ar.setup(client);
-                    this.autoReactions.set(ar.name, ar)
+                    this.autoReactions.set(ar.name, ar);
+                    this.triggerWords.push(ar.name);
+                    ar.aliases.forEach(alias => this.triggerWords.push(alias));
                 }).catch(console.log);
 
         }
@@ -40,21 +43,34 @@ export class AutoReactions {
             displayName = displayName || k.tag || k.username;
             messageContent = messageContent.replace('<@!' + v + '>',displayName);
         });
+        messageContent = messageContent.toLocaleLowerCase();
 
-        let messageContentLowerCase = messageContent.toLocaleLowerCase();
-        if (this.autoReactions.some(autoReaction => messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase)))) {
-            for(const autoReaction of this.autoReactions.values()){
-                if ((messageContentLowerCase.includes(autoReaction.name) || (autoReaction.aliases?.length > 0 && autoReaction.aliases.includes(messageContentLowerCase))) && !message.content.includes(`:${autoReaction.name}:`)) {
-                    try {
-                        autoReaction.execute(message);
-                        this.client.sendToLogChannel(`reaction added to: "${message}" (${message.id})`);
-                    } catch (error) {
-                        this.client.sendToLogChannel(error, false);
-                        console.error(error);
-                    }
-                }
-            }
-        }
+        this.triggerWords.forEach( triggerWord => {
+           if (messageContent.includes(triggerWord)){
+               console.log('message contains ' + triggerWord );
+               this.autoReactions.forEach((v,k) => {
+                   let found = false;
+                   if (messageContent.includes(k)){
+                       found = true;
+                   } else {
+                       for (const alias of v.aliases){
+                           if (messageContent.includes(alias)){
+                               found = true;
+                               break;
+                           }
+                       }
+                   }
+                   if (found){
+                       try {
+                           v.execute(message);
+                           this.client.sendToLogChannel(`reaction added to: "${message}" (${message.id})`);
+                       } catch (error) {
+                           this.client.sendToLogChannel(error, false);
+                       }
+                   }
+               });
+           }
+        });
     }
 
 }
