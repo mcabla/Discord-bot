@@ -27,6 +27,7 @@ export default class emoji extends AAutoReaction {
         ['kof','tkof'],
         ['café','tkof'],
         ['regent','regent'],
+        ['boo','boo'],
     ]);
     setup(client: CustomClient): Promise<IAutoReaction> {
         return super.setup(client).then(()=>{
@@ -39,7 +40,7 @@ export default class emoji extends AAutoReaction {
     execute(message: Message) {
         this.emojis.forEach((v,k) => {
             if (message.content.includes(k)){
-                MESSAGE.react(message, v);
+                MESSAGE.react(message, v).then().catch(console.log);
             }
         });
 
