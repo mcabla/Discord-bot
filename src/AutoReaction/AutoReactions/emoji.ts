@@ -3,7 +3,6 @@ import {AAutoReaction} from "../AAutoReaction";
 import {CustomClient} from "../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
 import {MESSAGE} from "../../Util/Message";
-import {API} from "../../Util/Api";
 
 export default class emoji extends AAutoReaction {
     name = 'emojiAutoReaction';
