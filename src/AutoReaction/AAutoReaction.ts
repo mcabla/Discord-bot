@@ -1,10 +1,12 @@
 import {IAutoReaction} from "./IAutoReaction";
 import {Message} from "discord.js";
+import {CustomClient} from "../Client/CustomClient";
 
 export abstract class AAutoReaction implements IAutoReaction{
-    readonly abstract aliases: string[];
     readonly abstract description: string;
     readonly abstract name: string;
+    aliases: string[] = []; // Can be an array of strings with aliases for this auto reaction
 
+    setup(client: CustomClient) {}
     abstract execute(message: Message): void;
 }

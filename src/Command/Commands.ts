@@ -13,15 +13,16 @@ export class Commands {
 
     constructor(client: CustomClient) {
         this.client = client;
-        this.setup();
+        this.setup(client);
     }
 
-    private setup(){
+    private setup(client: CustomClient){
         const commandFiles = fs.readdirSync('./src/Command/Commands').filter((file: string) => file.endsWith('.ts'));
         for (const file of commandFiles) {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {
                     const cmd: ICommand = new command();
+                    cmd.setup(client);
                     this.commands.set(cmd.name, cmd);
                 }).catch(console.log);
         }

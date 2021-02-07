@@ -1,5 +1,6 @@
 import {Message} from "discord.js";
 import {ICommand} from "./ICommand";
+import {CustomClient} from "../Client/CustomClient";
 
 export abstract class ACommand implements ICommand {
     readonly abstract name: string;
@@ -11,5 +12,6 @@ export abstract class ACommand implements ICommand {
     readonly guildOnly: boolean = false;
     readonly permissions: any[] = [];
     readonly bypassChannelId: string | undefined;
+    setup(client: CustomClient) {}
     abstract execute(message: Message, args: string[]): void;
 }

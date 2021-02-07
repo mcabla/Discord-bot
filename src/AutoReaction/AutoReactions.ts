@@ -12,15 +12,16 @@ export class AutoReactions {
 
     constructor(client: CustomClient) {
         this.client = client;
-        this.setup();
+        this.setup(client);
     }
 
-    private setup(){
+    private setup(client: CustomClient){
         const autoReactionFiles = fs.readdirSync('./src/AutoReaction/AutoReactions').filter((file: string) => file.endsWith('.ts'));
         for (const file of autoReactionFiles) {
             import(`./AutoReactions/${file}`)
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
+                    ar.setup(client);
                     this.autoReactions.set(ar.name, ar)
                 }).catch(console.log);
 
