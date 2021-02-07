@@ -16,6 +16,7 @@ export default class emoji extends AAutoReaction {
         ['boo','boo'],
         ['koekje','🍪'],['cookie','🍪'],
         ['pannenkoek','🥞'],['pancake','🥞'],
+        ['polka', 'vibingcat'], ['vibe', 'vibingcat'], ['vibing', 'vibingcat']
     ]);
     setup(client: CustomClient): Promise<IAutoReaction> {
         return super.setup(client).then(() => {
