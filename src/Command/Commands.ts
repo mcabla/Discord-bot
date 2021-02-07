@@ -40,11 +40,22 @@ export class Commands {
         const bypass = this.bypassChannelCommand(message);
         if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return;
 
+        message.channel.startTyping().then();
+        this.handleCommand(message, prefixRegex, bypass)
+            .then(() => {
+                if (message.channel){
+                    message.channel.stopTyping(true);
+                }
+            }).catch(console.log);
+    }
+
+    private handleCommand(message: Message, prefixRegex: RegExp, bypass: string): Promise<Message> {
+        console.log(message, prefixRegex, bypass);
         const matchedPrefix = message.content.match(prefixRegex);
         let length = (!matchedPrefix || matchedPrefix.length <= 1 )? 0 : matchedPrefix[1].length;
         const args = message.content.slice(length).trim().split(/ +/);
         const commandName = (bypass.length > 0)? bypass: args.shift()?.toLowerCase();
-        if (commandName == undefined) return;
+        if (commandName == undefined) return Promise.reject('Command not undefined.');
         const command = this.commands.get(commandName) || this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         if (!command) {
             return message.reply('I did not understand you. Please try again.\nContact your administrator if you think that this is an error.');
@@ -77,7 +88,7 @@ export class Commands {
             if (command.usage) {
                 reply += `\nThe proper usage would be: \`${PREFIX}${command.name} ${command.usage}\``;
             }
-            return message.channel.send(reply);
+            return message.reply(reply);
         }
 
         if (!this.cooldowns.has(command.name)) {
@@ -106,9 +117,10 @@ export class Commands {
 
         try {
             command.execute(message, args);
+            return Promise.resolve(message);
         } catch (error) {
             console.error(error);
-            message.reply('There was an error trying to execute that command!').then();
+            return message.reply('There was an error trying to execute that command!');
         }
     }
 
