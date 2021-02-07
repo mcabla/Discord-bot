@@ -53,6 +53,9 @@ export class AutoReactions {
         });
         messageContent = messageContent.toLocaleLowerCase();
 
+        // @ts-ignore
+        message.parsedContent = messageContent;
+
         this.triggerWords.forEach( triggerWord => {
            if (messageContent.includes(triggerWord)){
                this.autoReactions.forEach((v,k) => {
