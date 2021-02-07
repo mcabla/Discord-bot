@@ -4,6 +4,7 @@
   "statusChannelId": "",
   "announcementChannelId": "",
   "randomPersonUrl": "",
+  "autoReactionsEmojisUrl": "",
   "guildId": "",
   "discordToken": "",
   "assistantId": "",
