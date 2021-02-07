@@ -1,4 +1,4 @@
-import {Collection, Emoji, Message} from "discord.js";
+import {Collection, Message} from "discord.js";
 import {AAutoReaction} from "../AAutoReaction";
 import {CustomClient} from "../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
@@ -9,30 +9,14 @@ export default class emoji extends AAutoReaction {
     name = 'emojiAutoReaction';
     description = 'reacts with emojis';
     private emojis = new Collection<string, string>([
-        ['acantha','acantha'],
-        ['bier','🍻'],
-        ['beer','🍻'],
-        ['gerstenat','🍻'],
-        ['pint','🍻'],
-        ['adje','🍻'],
-        ['ad fundum','🍻'],
+        ['acantha','acantha'],['hospitalia','hospitalia'],['ideefix','ideefix'],['regent','regent'],['club','ideefix'],['vereniging','ideefix'],
+        ['bier','🍻'],['beer','🍻'], ['gerstenat','🍻'],['pint','🍻'],['adje','🍻'],['ad fundum','🍻'],
         ['shotje','🥛'],
-        ['hospitalia','hospitalia'],
-        ['ideefix','ideefix'],
-        ['club','ideefix'],
-        ['vereniging','ideefix'],
-        ['kaas','🧀'],
-        ['cheese','🧀'],
-        ['eten','🧀'],
-        ['food','🧀'],
-        ['kof','tkof'],
-        ['café','tkof'],
-        ['regent','regent'],
+        ['kaas','🧀'],['cheese','🧀'],['eten','🧀'],['food','🧀'],
+        ['kof','tkof'],['café','tkof'],
         ['boo','boo'],
-        ['koekje','🍪'],
-        ['cookie','🍪'],
-        ['pannenkoek','🥞'],
-        ['pancake','🥞'],
+        ['koekje','🍪'],['cookie','🍪'],
+        ['pannenkoek','🥞'],['pancake','🥞'],
     ]);
     setup(client: CustomClient): Promise<IAutoReaction> {
         return super.setup(client).then(() => {
