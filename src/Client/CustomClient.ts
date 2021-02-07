@@ -6,9 +6,9 @@ import {Commands} from "../Command/Commands";
 import {GUILD_ID, LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Config";
 
 export class CustomClient extends Client {
-    musicQueue = new Collection();
-    autoReaction: AutoReactions;
-    command: Commands;
+    readonly musicQueue = new Collection();
+    readonly autoReaction: AutoReactions;
+    readonly command: Commands;
 
     constructor() {
         super();
