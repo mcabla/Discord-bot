@@ -40,6 +40,22 @@ export class AutoReactions {
         }
     }
 
+    public reload(){
+        this.triggerWords.length = 0;
+        this.autoReactions.forEach((autoReaction,k) => {
+            autoReaction.setup(this.client).then((reaction) => {
+                if (!this.triggerWords.some(v => v.includes(reaction.name))){
+                    this.triggerWords.push(reaction.name);
+                }
+                reaction.aliases.forEach(alias => {
+                    if (!this.triggerWords.some(v => v.includes(alias))) {
+                        this.triggerWords.push(alias);
+                    }
+                });
+            });
+        })
+    }
+
     public addReactions(message: Message) {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
 
