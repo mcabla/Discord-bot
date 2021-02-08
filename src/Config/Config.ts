@@ -9,6 +9,7 @@ export const MEME_CHANNEL_ID: string = process.env.MEME_CHANNEL_ID || config.mem
 export const RANDOM_PERSON_URL: string = process.env.RANDOM_PERSON_URL || config.randomPersonUrl;
 export const RANDOM_MEME_URL: string = process.env.RANDOM_MEME_URL || config.randomMemeUrl;
 export const AUTO_REACTIONS_EMOJIS_URL: string = process.env.AUTO_REACTIONS_EMOJIS_URL || config.autoReactionsEmojisUrl;
+export const AUTO_REACTIONS_COMMANDS_URL: string = process.env.AUTO_REACTIONS_COMMANDS_URL || config.autoReactionsCommandsUrl;
 export const GUILD_ID: string = process.env.GUILD_ID || config.guildId;
 export const DISCORD_TOKEN: string = process.env.DISCORD_TOKEN || config.discordToken;
 export const ASSISTANT_ID: string = process.env.ASSISTANT_ID || config.assistantId;

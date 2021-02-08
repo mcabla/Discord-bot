@@ -11,7 +11,7 @@ export class Commands implements IEventHandler {
     readonly client: CustomClient;
     readonly commands = new Collection<string, ACommand>();
     readonly cooldowns = new Collection<string, Collection<string, number>>();
-    escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    static escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     constructor(client: CustomClient) {
         this.client = client;
@@ -31,15 +31,15 @@ export class Commands implements IEventHandler {
         }
     }
 
-    private bypassChannelCommand(message: Message): string {
-        let cmd: ICommand | undefined = this.commands.find(cmd => cmd.bypassChannelId != null && cmd.bypassChannelId === message.channel.id);
+    public static bypassChannelCommand(message: Message, commands: Collection<string, ACommand>): string {
+        let cmd: ICommand | undefined = commands.find(cmd => cmd.bypassChannelId != null && cmd.bypassChannelId === message.channel.id);
         return cmd?.name ?? "";
     }
 
     public handleMessage(message: Message): Promise<void> {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return Promise.resolve();
-        const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${this.escapeRegex(PREFIX)})\\s*`);
-        const bypass = this.bypassChannelCommand(message);
+        const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${Commands.escapeRegex(PREFIX)})\\s*`);
+        const bypass = Commands.bypassChannelCommand(message, this.commands);
         if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return Promise.resolve();
 
         message.channel.startTyping().then();

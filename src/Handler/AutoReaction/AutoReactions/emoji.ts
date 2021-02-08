@@ -20,6 +20,7 @@ export default class Emoji extends AAutoReaction {
         return super.setup(client)
             .then(() => API.get<IEmojiTrigger[]>(AUTO_REACTIONS_EMOJIS_URL))
             .then(res => {
+                this.emojis.clear();
                 for (const trigger of res){
                     this.emojis.set(trigger.trigger, trigger);
                 }
@@ -39,7 +40,5 @@ export default class Emoji extends AAutoReaction {
                     }
                 });
             });
-
-
     }
 }
