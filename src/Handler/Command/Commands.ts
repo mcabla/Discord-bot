@@ -74,18 +74,15 @@ export class Commands implements IEventHandler {
         if (command.permissions.length > 0 && message.guild != null && message.channel.type !== 'dm') {
             let user = message.client.user;
             if (!user){
-                LOG.sendToLogChannel(this.client,"user was null",true, message.channel);
-                return message.reply('An unknown error occurred! Please contact your administrator.')
+                return LOG.sendToLogChannel(this.client,"user was null",true, message.channel)
+                    .then(() => message.reply('An unknown error occurred! Please contact your administrator.'));
             }
             const authorPermissions = message.channel.permissionsFor(user);
             if (!authorPermissions){
                 return message.reply('You are not allowed to execute this command here.');
             }
-            for (const permission of command.permissions){
-                if (!authorPermissions.has(permission)){
-                    return message.reply('You are not allowed to execute this command here.');
-
-                }
+            if (command.permissions.some(permission => !authorPermissions.has(permission))){
+                return message.reply('You are not allowed to execute this command here.');
             }
         }
 
