@@ -30,8 +30,8 @@ export default class emoji extends AAutoReaction {
 
     }
 
-    execute(message: Message) {
-        MESSAGE.parse(message)
+    execute(message: Message): Promise<void> {
+        return MESSAGE.parse(message)
             .then(parsedContent => {
                 this.emojis.forEach((v,k) => {
                     if (parsedContent.includes(k)){

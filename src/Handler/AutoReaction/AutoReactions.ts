@@ -63,31 +63,30 @@ export class AutoReactions implements IEventHandler {
 
         return MESSAGE.parse(message)
             .then(parsedContent => {
+                let triggered: IAutoReaction[] = [];
                 this.triggerWords.forEach( triggerWord => {
                     if (parsedContent.includes(triggerWord)){
                         this.autoReactions.forEach((v,k) => {
-                            let found = false;
                             if (parsedContent.includes(k)){
-                                found = true;
+                                triggered.push(v);
                             } else {
                                 for (const alias of v.aliases){
                                     if (parsedContent.includes(alias)){
-                                        found = true;
+                                        triggered.push(v);
                                         break;
                                     }
-                                }
-                            }
-                            if (found){
-                                try {
-                                    v.execute(message);
-                                    LOG.sendToLogChannel(this.client,`Auto reacted for ${triggerWord} to: "${message}" (${message.id})`).then();
-                                } catch (error) {
-                                    LOG.sendToLogChannel(this.client, error, false).then();
                                 }
                             }
                         });
                     }
                 });
+                return triggered;
+            }).then(triggered => {
+                triggered.map((reaction: IAutoReaction) => {
+                    reaction.execute(message)
+                        .then(() => LOG.sendToLogChannel(this.client,`Auto reacted to: "${message}" (${message.id})`))
+                        .catch(error => LOG.sendToLogChannel(this.client, error, false));
+                })
             });
     }
 
