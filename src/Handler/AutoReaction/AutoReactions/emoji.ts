@@ -12,7 +12,7 @@ interface IEmojiTrigger {
     readonly emoji: string;
 }
 
-export default class emoji extends AAutoReaction {
+export default class Emoji extends AAutoReaction {
     name = 'emojiAutoReaction';
     description = 'reacts with emojis';
     private emojis = new Collection<string, IEmojiTrigger>();

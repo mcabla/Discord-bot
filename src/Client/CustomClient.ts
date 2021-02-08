@@ -10,6 +10,7 @@ import {Commands} from "../Handler/Command/Commands";
 import {PREFIX} from "../Config/Config";
 import {LOG} from "../Util/Log";
 import {Music} from "../Handler/Music/Music";
+import {MESSAGE} from "../Util/Message";
 
 export class CustomClient extends Client {
     readonly music: Music;
@@ -36,6 +37,8 @@ export class CustomClient extends Client {
         LOG.sendToStatusChannel(this, `Logged in as ${this.user?.tag}!`)
             .then(() => {
                 this.user?.setActivity(`${PREFIX}help`, {type: "LISTENING"});
+            }).then(() => {
+                this.setIntervals();
             }).catch(console.log);
     };
 
@@ -62,4 +65,14 @@ export class CustomClient extends Client {
             .then(() => this.music.handleMessage(message));
     };
 
+    private setIntervals() {
+        //this.setInterval(this.meme, 30*1000);
+        this.setInterval(this.meme, 2*60*60*1000);
+    }
+
+    private meme = () => {
+        MESSAGE.meme(this)
+            .then()
+            .catch(console.log);
+    }
 }
