@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import {ACommand} from "../ACommand";
-import {CustomClient} from "../../Client/CustomClient";
+import {CustomClient} from "../../../Client/CustomClient";
 
 export default class Ping extends ACommand {
     name = 'reload';
