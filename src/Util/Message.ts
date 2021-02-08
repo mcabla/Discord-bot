@@ -53,7 +53,7 @@ export class MESSAGE {
                 return new MessageEmbed({
                     color: randomColor,
                     image: {
-                        url: meme.photo
+                        url: meme.photo.trim().replace(/\s/g, '%20')
                     },
                     timestamp: new Date(),
                 });
