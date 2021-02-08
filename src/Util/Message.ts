@@ -3,6 +3,7 @@ import {STRING} from "./String";
 import {CustomClient} from "../Client/CustomClient";
 import {GUILD_ID, MEME_CHANNEL_ID, RANDOM_MEME_URL} from "../Config/Config";
 import {API} from "./Api";
+import {WEBHOOK} from "./Webhook";
 
 interface IMeme {
     readonly id: number;
@@ -42,11 +43,7 @@ export class MESSAGE {
 
     public static meme(client: CustomClient): Promise<Message> {
         return Promise.all([this.getMemeChannel(client), this.getMeme()])
-            .then(values => {
-                const memeChannel: TextChannel | NewsChannel = values[0];
-                const embed: MessageEmbed = values[1];
-                return memeChannel.send(embed);
-            });
+            .then(values =>  WEBHOOK.send(values[0],'', values[1]));
     }
 
     private static getMeme(): Promise<MessageEmbed> {
