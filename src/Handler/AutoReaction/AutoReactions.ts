@@ -63,24 +63,12 @@ export class AutoReactions implements IEventHandler {
 
         return MESSAGE.parse(message)
             .then(parsedContent => {
-                let triggered: IAutoReaction[] = [];
-                this.triggerWords.forEach( triggerWord => {
-                    if (parsedContent.includes(triggerWord)){
-                        this.autoReactions.forEach((v,k) => {
-                            if (parsedContent.includes(k)){
-                                triggered.push(v);
-                            } else {
-                                for (const alias of v.aliases){
-                                    if (parsedContent.includes(alias)){
-                                        triggered.push(v);
-                                        break;
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
-                return triggered;
+                if (this.triggerWords.some(triggerWord => parsedContent.includes(triggerWord))){
+                    return this.autoReactions
+                        .filter((v,k) => parsedContent.includes(k) || v.aliases.some(alias => parsedContent.includes(alias)))
+                        .array();
+                }
+                return [];
             }).then(triggered => {
                 triggered.map((reaction: IAutoReaction) => {
                     reaction.execute(message)
