@@ -106,7 +106,7 @@ export class Commands implements IEventHandler {
         const cooldownAmount = (command.cooldown || 3) * 1000;
 
         // @ts-ignore
-        if (timestamps.has(message.author.id)) {
+        if (timestamps.has(message.author.id) && (bypass.length == 0)) {
             // @ts-ignore
             const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
