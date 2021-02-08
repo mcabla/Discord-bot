@@ -10,7 +10,7 @@ interface IMeme {
     readonly photo: string;
 }
 
-export class MESSAGE{
+export class MESSAGE {
     public static react(message: Message, emoji: string, originalMessage?: Message): Promise<MessageReaction> {
         if(!STRING.LETTERS.test(emoji)){
             return message.react(emoji);

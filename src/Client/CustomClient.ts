@@ -7,7 +7,7 @@ import {
 
 import {AutoReactions} from "../Handler/AutoReaction/AutoReactions";
 import {Commands} from "../Handler/Command/Commands";
-import {PREFIX} from "../Config/Config";
+import {GUILD_ID, PREFIX} from "../Config/Config";
 import {LOG} from "../Util/Log";
 import {Music} from "../Handler/Music/Music";
 import {MESSAGE} from "../Util/Message";
@@ -71,8 +71,17 @@ export class CustomClient extends Client {
     }
 
     private meme = () => {
-        MESSAGE.meme(this)
-            .then()
+        this.guilds.fetch(GUILD_ID)
+            .then(guild => guild.channels.cache
+                .filter((channel) => channel.type === 'voice')
+                .some((channel) => channel.members.size > 0))
+            .then((shouldMeme) => {
+                if (shouldMeme) {
+                    return MESSAGE.meme(this);
+                } else {
+                    return;
+                }
+            })
             .catch(console.log);
     }
 }
