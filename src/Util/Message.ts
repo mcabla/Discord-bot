@@ -41,7 +41,7 @@ export class MESSAGE {
         return Promise.resolve(messageContent);
     }
 
-    public static meme(client: CustomClient): Promise<Message> {
+    public static meme(client: Client): Promise<Message> {
         return Promise.all([this.getMemeChannel(client), this.getMeme()])
             .then(values =>  WEBHOOK.send(values[0],'', values[1]));
     }

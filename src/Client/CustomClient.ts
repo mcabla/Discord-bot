@@ -66,7 +66,6 @@ export class CustomClient extends Client {
     };
 
     private setIntervals() {
-        //this.setInterval(this.meme, 30*1000);
         this.setInterval(this.meme, 2*60*60*1000);
     }
 
