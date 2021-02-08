@@ -1,10 +1,11 @@
-import {GuildChannel, Message, NewsChannel, TextChannel, Webhook} from "discord.js";
+import {GuildChannel, Message, NewsChannel, TextChannel} from "discord.js";
 import {ACommand} from "../ACommand";
-import {ANNOUNCEMENT_CHANNEL_ID, RANDOM_PERSON_URL} from "../../../Config/Config";
+import {ANNOUNCEMENT_CHANNEL_ID} from "../../../Config/Config";
 import {CustomClient} from "../../../Client/CustomClient";
 import {API} from "../../../Util/Api";
 import { STRING} from "../../../Util/String";
 import {LOG} from "../../../Util/Log";
+import {WEBHOOK} from "../../../Util/Webhook";
 
 export default class Announce extends ACommand  {
     name = 'announce';
@@ -39,66 +40,15 @@ export default class Announce extends ACommand  {
 
         if (id === 'new' || id == 'new-private' || message.channel.id === ANNOUNCEMENT_CHANNEL_ID) {
             if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){
-                message.channel.fetchWebhooks().then( res => {
-                    let webhook = res.first();
-                    if (webhook) {
-                        Announce.send(message, id || 'new', text, webhook);
-                    } else  {
-                        if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){ //Typescript forgot that this channel is a text channel
-                            let iconUrl = message.guild?.iconURL();
-                            if (iconUrl) {
-                                message.channel.createWebhook('Announcement', { avatar: iconUrl})
-                                    .then(wh => Announce.send(message, id || 'new', text, wh))
-                                    .catch(console.log);
-                            } else {
-                                message.channel.createWebhook('Announcement')
-                                    .then(wh => Announce.send(message, id || 'new', text, wh))
-                                    .catch(console.log);
-                            }
-                        } else {
-                            throw Error(`Somehow ${message.channel.id} is not a text channel anymore.`);
-                        }
-                    }
-                }).catch((e) => {
-                    console.log('A problem occurred while fetching the webhooks for this channel.', e);
-                    message.channel.send(text).then(m => Announce.finalize(message, m, id));
-                });
+                WEBHOOK.send(message.channel,text)
+                    .then(m => Announce.finalize(message, m, id))
+                    .catch((e)=> LOG.sendToLogChannel(message.client, `A problem occurred while making an anouncement: ${message.url}`,true));
             } else {
                 console.log(`${message.channel.id} is not a text channel.`);
             }
         } else {
             return Announce.editMessage(message, id, text);
         }
-    }
-
-    private static send(message: Message, id: string, text: string, webhook: Webhook){
-        API.get<{id: number; name: string; photo: string}>(RANDOM_PERSON_URL)
-            .then(res => {
-                webhook.send(text, {
-                    username: res.name,
-                    avatarURL: res.photo.trim().replace(/\s/g, '%20')
-                }).then(m => {
-                    this.finalize(message, m, id);
-                }).then(() => { // Try to reset the webhook picture and name
-                    let iconUrl = message.guild?.iconURL();
-                    if (iconUrl) {
-                        webhook.edit({
-                            name: 'Announcement',
-                            avatar: iconUrl
-                        }).then();
-                    } else {
-                        webhook.edit({
-                            name: 'Announcement'
-                        }).then();
-                    }
-                });
-            })
-            .catch((e)=> {
-                console.log(e);
-                webhook.send(text).then(m => {
-                    this.finalize(message, m, id);
-                });
-            }).catch(console.log);
     }
 
     private static editMessage(message: Message, id: string | undefined, text: string): Promise<any> {
