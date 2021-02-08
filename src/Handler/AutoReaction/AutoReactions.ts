@@ -58,10 +58,10 @@ export class AutoReactions implements IEventHandler {
         })
     }
 
-    public handleMessage(message: Message) {
-        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
+    public handleMessage(message: Message): Promise<void> {
+        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return Promise.resolve();
 
-        MESSAGE.parse(message)
+        return MESSAGE.parse(message)
             .then(parsedContent => {
                 this.triggerWords.forEach( triggerWord => {
                     if (parsedContent.includes(triggerWord)){
@@ -80,7 +80,7 @@ export class AutoReactions implements IEventHandler {
                             if (found){
                                 try {
                                     v.execute(message);
-                                    LOG.sendToLogChannel(this.client,`reaction added to: "${message}" (${message.id})`).then();
+                                    LOG.sendToLogChannel(this.client,`Auto reacted for ${triggerWord} to: "${message}" (${message.id})`).then();
                                 } catch (error) {
                                     LOG.sendToLogChannel(this.client, error, false).then();
                                 }

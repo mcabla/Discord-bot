@@ -36,28 +36,32 @@ export class Commands implements IEventHandler {
         return cmd?.name ?? "";
     }
 
-    public handleMessage(message: Message){
-        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
+    public handleMessage(message: Message): Promise<void> {
+        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return Promise.resolve();
         const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${this.escapeRegex(PREFIX)})\\s*`);
         const bypass = this.bypassChannelCommand(message);
-        if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return;
+        if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return Promise.resolve();
 
         message.channel.startTyping().then();
-        this.handleCommand(message, prefixRegex, bypass)
+        return this.handleCommand(message, prefixRegex, bypass)
             .then(() => {
                 if (!message.channel.deleted){
                     message.channel.stopTyping(true);
                 }
-            }).catch(console.log);
+            }).catch(error => {
+                if (!message.channel.deleted){
+                    message.channel.stopTyping(true);
+                }
+                console.log(error);
+            });
     }
 
     private handleCommand(message: Message, prefixRegex: RegExp, bypass: string): Promise<Message> {
-        console.log(message, prefixRegex, bypass);
         const matchedPrefix = message.content.match(prefixRegex);
         let length = (!matchedPrefix || matchedPrefix.length <= 1 )? 0 : matchedPrefix[1].length;
         const args = message.content.slice(length).trim().split(/ +/);
         const commandName = (bypass.length > 0)? bypass: args.shift()?.toLowerCase();
-        if (commandName == undefined) return Promise.reject('Command not undefined.');
+        if (commandName == undefined) return Promise.reject('Command undefined.'); // Should not happen
         const command = this.commands.get(commandName) || this.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         if (!command) {
             return message.reply('I did not understand you. Please try again.\nContact your administrator if you think that this is an error.');

@@ -57,9 +57,9 @@ export class CustomClient extends Client {
     };
 
     private messageListener = (message: Message) => {
-        this.autoReaction.handleMessage(message);
-        this.command.handleMessage(message);
-        this.music.handleMessage(message);
+        this.command.handleMessage(message)
+            .then(() => this.autoReaction.handleMessage(message))
+            .then(() => this.music.handleMessage(message));
     };
 
 }

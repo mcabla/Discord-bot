@@ -19,6 +19,7 @@ export class Music implements IEventHandler {
 
     }
 
-    handleMessage(message: Message): void {
+    handleMessage(message: Message): Promise<void> {
+        return Promise.resolve();
     }
 }
