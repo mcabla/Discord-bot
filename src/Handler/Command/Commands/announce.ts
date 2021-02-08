@@ -44,7 +44,6 @@ export default class Announce extends ACommand  {
                     if (webhook) {
                         Announce.send(message, id || 'new', text, webhook);
                     } else  {
-                        console.log('This channel does not have any webhooks. Creating a new webhook');
                         if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){ //Typescript forgot that this channel is a text channel
                             let iconUrl = message.guild?.iconURL();
                             if (iconUrl) {
@@ -62,15 +61,13 @@ export default class Announce extends ACommand  {
                     }
                 }).catch((e) => {
                     console.log('A problem occurred while fetching the webhooks for this channel.', e);
-                    message.channel.send(text).then(m => {
-                        Announce.finalize(message, m, id);
-                    });
+                    message.channel.send(text).then(m => Announce.finalize(message, m, id));
                 });
             } else {
                 console.log(`${message.channel.id} is not a text channel.`);
             }
         } else {
-            Announce.editMessage(message, id, text);
+            return Announce.editMessage(message, id, text);
         }
     }
 
@@ -104,54 +101,53 @@ export default class Announce extends ACommand  {
             }).catch(console.log);
     }
 
-    private static editMessage(message: Message, id: string | undefined, text: string){
+    private static editMessage(message: Message, id: string | undefined, text: string): Promise<any> {
         if (id === undefined || !STRING.isNumber(id)) {
             if (message.client instanceof CustomClient) {
                 message.reply(`The first argument (${id}) was not correct.`).then();
             }
-            return;
+            return Promise.resolve();
         }
         let guildChannel = message.guild?.channels.resolve(ANNOUNCEMENT_CHANNEL_ID);
         if (guildChannel?.isText()) {
-            guildChannel.messages.fetch(id)
+            return guildChannel.messages.fetch(id)
                 .then(m => {
                     if (m.webhookID){
                         m.fetchWebhook()
                             .then(wh => `${wh.url}/messages/${id}`)
                             .then(url => {
                                 const params = {"content": text};
-                                API.patch(url, JSON.stringify(params))
-                                    .then(() => {
-                                        this.finalize(message, m, id);
-                                    }).catch(err => {
-                                        message.reply('An unknown error occurred!').then();
-                                        console.log(err);
-                                    });
-                            }).catch(console.log);
+                                return API.patch(url, JSON.stringify(params))
+                                    .then(() =>  this.finalize(message, m, id));
+                            }).catch(err => {
+                                return message.reply('An unknown error occurred!').then(() => console.error(err));
+                            });
                     } else if (m.author.bot && m.author.id == message.client.user?.id) {
-                            m.edit(text).then();
+                            m.edit(text);
                     } else {
                         message.reply("I'm not authorised to edit this message.").then();
                     }
 
                 }).catch(console.log);
         }
+        return Promise.resolve();
     }
 
     private static finalize(message: Message, newMessage: Message, id: string | undefined,){
-        this.logNewAnnouncement(message, newMessage);
-        this.deleteIfSameChannel(message, newMessage);
-        if (id == 'new') this.publish(newMessage);
+        return this.logNewAnnouncement(message, newMessage)
+            .then(() => this.deleteIfSameChannel(message, newMessage))
+            .then(() => {if (id == 'new') this.publish(newMessage);});
     }
 
-    private static logNewAnnouncement(message: Message, newMessage: Message){
-        LOG.sendToLogChannel(message.client, `Announcement was made/edited with id: ${newMessage.id}`).then();
+    private static logNewAnnouncement(message: Message, newMessage: Message): Promise<Message> {
+        return LOG.sendToLogChannel(message.client, `Announcement was made/edited: ${newMessage.url}`);
     }
 
     private static deleteIfSameChannel(message: Message, newMessage: Message){
         if (message.channel instanceof GuildChannel && newMessage.channel instanceof GuildChannel && message.channel.equals(newMessage.channel)){
             message.delete({timeout: 10}).then();
         }
+        return Promise.resolve();
     }
 
     private static publish(newMessage: Message){
