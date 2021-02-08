@@ -31,11 +31,9 @@ export class AutoReactions implements IEventHandler {
                         if (!this.triggerWords.some(v => v.includes(reaction.name))){
                             this.triggerWords.push(reaction.name);
                         }
-                        reaction.aliases.forEach(alias => {
-                            if (!this.triggerWords.some(v => v.includes(alias))) {
-                                this.triggerWords.push(alias);
-                            }
-                        });
+                        reaction.aliases
+                            .filter(alias => !this.triggerWords.some(v => v.includes(alias)))
+                            .forEach(alias => this.triggerWords.push(alias));
                     });
                 }).catch(console.log);
 
