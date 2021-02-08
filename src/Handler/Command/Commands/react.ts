@@ -1,6 +1,6 @@
 import {Emoji, Message} from "discord.js";
 import {ACommand} from "../ACommand";
-import {MESSAGE} from "../../Util/Message";
+import {MESSAGE} from "../../../Util/Message";
 
 export default class React extends ACommand {
     name = 'react';

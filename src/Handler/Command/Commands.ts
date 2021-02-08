@@ -1,11 +1,13 @@
-import {CustomClient} from "../Client/CustomClient";
+import {CustomClient} from "../../Client/CustomClient";
 import fs from "fs";
 import {ICommand} from "./ICommand";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Config";
+import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../../Config/Config";
 import {ACommand} from "./ACommand";
+import {LOG} from "../../Util/Log";
+import {IEventHandler} from "../IEventHandler";
 
-export class Commands {
+export class Commands implements IEventHandler {
     readonly client: CustomClient;
     readonly commands = new Collection<string, ACommand>();
     readonly cooldowns = new Collection<string, Collection<string, number>>();
@@ -17,7 +19,7 @@ export class Commands {
     }
 
     private setup(client: CustomClient){
-        const commandFiles = fs.readdirSync('./src/Command/Commands').filter((file: string) => file.endsWith('.ts'));
+        const commandFiles = fs.readdirSync('./src/Handler/Command/Commands').filter((file: string) => file.endsWith('.ts'));
         for (const file of commandFiles) {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {
@@ -34,7 +36,7 @@ export class Commands {
         return cmd?.name ?? "";
     }
 
-    public executeCommand(message: Message){
+    public handleMessage(message: Message){
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
         const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${this.escapeRegex(PREFIX)})\\s*`);
         const bypass = this.bypassChannelCommand(message);
@@ -68,7 +70,7 @@ export class Commands {
         if (command.permissions.length > 0 && message.guild != null && message.channel.type !== 'dm') {
             let user = message.client.user;
             if (!user){
-                this.client.sendToLogChannel("user was null",true, message.channel);
+                LOG.sendToLogChannel(this.client,"user was null",true, message.channel);
                 return message.reply('An unknown error occurred! Please contact your administrator.')
             }
             const authorPermissions = message.channel.permissionsFor(user);

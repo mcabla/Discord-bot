@@ -1,12 +1,14 @@
-import {CustomClient} from "../Client/CustomClient";
+import {CustomClient} from "../../Client/CustomClient";
 import fs from "fs";
 import {IAutoReaction} from "./IAutoReaction";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Config/Config";
+import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../../Config/Config";
 import {AAutoReaction} from "./AAutoReaction";
-import {MESSAGE} from "../Util/Message";
+import {MESSAGE} from "../../Util/Message";
+import {LOG} from "../../Util/Log";
+import {IEventHandler} from "../IEventHandler";
 
-export class AutoReactions {
+export class AutoReactions implements IEventHandler {
     readonly client: CustomClient;
     readonly autoReactions = new Collection<string, AAutoReaction>();
     readonly triggerWords: string[] = [];
@@ -18,7 +20,7 @@ export class AutoReactions {
     }
 
     private setup(client: CustomClient){
-        const autoReactionFiles = fs.readdirSync('./src/AutoReaction/AutoReactions').filter((file: string) => file.endsWith('.ts'));
+        const autoReactionFiles = fs.readdirSync('./src/Handler/AutoReaction/AutoReactions').filter((file: string) => file.endsWith('.ts'));
         for (const file of autoReactionFiles) {
             import(`./AutoReactions/${file}`)
                 .then(({default: autoReaction}) => {
@@ -56,7 +58,7 @@ export class AutoReactions {
         })
     }
 
-    public addReactions(message: Message) {
+    public handleMessage(message: Message) {
         if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return;
 
         MESSAGE.parse(message)
@@ -78,15 +80,15 @@ export class AutoReactions {
                             if (found){
                                 try {
                                     v.execute(message);
-                                    this.client.sendToLogChannel(`reaction added to: "${message}" (${message.id})`);
+                                    LOG.sendToLogChannel(this.client,`reaction added to: "${message}" (${message.id})`).then();
                                 } catch (error) {
-                                    this.client.sendToLogChannel(error, false);
+                                    LOG.sendToLogChannel(this.client, error, false).then();
                                 }
                             }
                         });
                     }
                 });
-            })
+            });
     }
 
 }

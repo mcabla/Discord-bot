@@ -1,9 +1,10 @@
 import {GuildChannel, Message, NewsChannel, TextChannel, Webhook} from "discord.js";
 import {ACommand} from "../ACommand";
-import {ANNOUNCEMENT_CHANNEL_ID, RANDOM_PERSON_URL} from "../../Config/Config";
-import {CustomClient} from "../../Client/CustomClient";
-import {API} from "../../Util/Api";
-import { STRING} from "../../Util/String";
+import {ANNOUNCEMENT_CHANNEL_ID, RANDOM_PERSON_URL} from "../../../Config/Config";
+import {CustomClient} from "../../../Client/CustomClient";
+import {API} from "../../../Util/Api";
+import { STRING} from "../../../Util/String";
+import {LOG} from "../../../Util/Log";
 
 export default class Announce extends ACommand  {
     name = 'announce';
@@ -144,9 +145,7 @@ export default class Announce extends ACommand  {
     }
 
     private static logNewAnnouncement(message: Message, newMessage: Message){
-        if (message.client instanceof CustomClient) {
-            message.client?.sendToLogChannel(`Announcement was made/edited with id: ${newMessage.id}`);
-        }
+        LOG.sendToLogChannel(message.client, `Announcement was made/edited with id: ${newMessage.id}`).then();
     }
 
     private static deleteIfSameChannel(message: Message, newMessage: Message){

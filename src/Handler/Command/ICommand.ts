@@ -1,5 +1,5 @@
 import {Message, PermissionResolvable} from "discord.js";
-import {CustomClient} from "../Client/CustomClient";
+import {CustomClient} from "../../Client/CustomClient";
 
 export interface ICommand {
     readonly name: string;

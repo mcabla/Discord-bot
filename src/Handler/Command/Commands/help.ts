@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import {ICommand} from "../ICommand";
-import {PREFIX} from "../../Config/Config";
+import {PREFIX} from "../../../Config/Config";
 import {ACommand} from "../ACommand";
 
 export default class Help extends ACommand {
@@ -44,6 +44,6 @@ export default class Help extends ACommand {
 
         data.push(`**Cooldown:** ${command.cooldown || 3} second(s)`);
 
-        message.channel.send(data, { split: true });
+        message.channel.send(data, { split: true }).then();
     }
 }

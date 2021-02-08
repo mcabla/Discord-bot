@@ -1,7 +1,8 @@
 import {DMChannel, Message} from "discord.js";
 import {ACommand} from "../ACommand";
-import {STRING} from "../../Util/String";
-import {CustomClient} from "../../Client/CustomClient";
+import {STRING} from "../../../Util/String";
+import {CustomClient} from "../../../Client/CustomClient";
+import {LOG} from "../../../Util/Log";
 
 export default class Purge extends ACommand {
     name = 'purge';
@@ -24,9 +25,7 @@ export default class Purge extends ACommand {
             message.channel.bulkDelete(n)
                 .then(messages => message.channel.send(`Bulk deleted ${messages.size} messages`))
                 .then(() => {
-                    if (message.client instanceof CustomClient) {
-                        message.client?.sendToLogChannel(`${message.author} purged ${n} messages from channel ${message.channel.id}`);
-                    }
+                    LOG.sendToLogChannel(message.client,`${message.author} purged ${n} messages from channel ${message.channel.id}`).then();
                 })
                 .catch(e => {
                     console.log(e);

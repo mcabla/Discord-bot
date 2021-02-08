@@ -1,7 +1,7 @@
-import {callAssistant} from "../../Watson/Watson";
+import {callAssistant} from "../../../Watson/Watson";
 import { Message } from "discord.js";
 import {ACommand} from "../ACommand";
-import {ASSISTANT_CHANNEL_ID} from "../../Config/Config";
+import {ASSISTANT_CHANNEL_ID} from "../../../Config/Config";
 export default class Watson extends ACommand  {
     name = 'watson';
     description = 'AI assistant';

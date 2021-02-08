@@ -1,6 +1,6 @@
 import {IAutoReaction} from "./IAutoReaction";
 import {Message} from "discord.js";
-import {CustomClient} from "../Client/CustomClient";
+import {CustomClient} from "../../Client/CustomClient";
 
 export abstract class AAutoReaction implements IAutoReaction{
     readonly abstract description: string;

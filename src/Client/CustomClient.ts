@@ -1,73 +1,65 @@
-import {Channel, Client, Collection, PartialTextBasedChannelFields} from "discord.js";
-import {AAutoReaction} from "../AutoReaction/AAutoReaction";
-import {ACommand} from "../Command/ACommand";
-import {AutoReactions} from "../AutoReaction/AutoReactions";
-import {Commands} from "../Command/Commands";
-import {GUILD_ID, LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../Config/Config";
+import {
+    Client,
+    GuildMember,
+    Message,
+    PartialGuildMember,
+} from "discord.js";
+
+import {AutoReactions} from "../Handler/AutoReaction/AutoReactions";
+import {Commands} from "../Handler/Command/Commands";
+import {PREFIX} from "../Config/Config";
+import {LOG} from "../Util/Log";
+import {Music} from "../Handler/Music/Music";
 
 export class CustomClient extends Client {
-    readonly musicQueue = new Collection();
+    readonly music: Music;
     readonly autoReaction: AutoReactions;
     readonly command: Commands;
 
     constructor() {
         super();
+        this.music = new Music(this);
         this.autoReaction = new AutoReactions(this);
         this.command = new Commands(this);
         this.setup();
     }
 
     private setup() {
-        this.on('ready', () => {
-            this.sendToStatusChannel(`Logged in as ${this.user?.tag}!`);
-            this.user?.setActivity(`${PREFIX}help`, { type: "LISTENING" });
-        });
-        this.on("warn", error => {
-            this.sendToLogChannel(error, false);
-            console.log(error);
-        });
-        this.on("error", error => {
-            this.sendToLogChannel(error.message, false);
-            console.log(error);
-        });
-        this.on('guildMemberUpdate', (oldMember, newMember) => {
-            // If the role(s) are present on the old member object but no longer on the new one (i.e role(s) were removed)
-            const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
-            if (removedRoles.size > 0) this.sendToLogChannel(`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`);
-            // If the role(s) are present on the new member object but are not on the old one (i.e role(s) were added)
-            const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
-            if (addedRoles.size > 0) this.sendToLogChannel(`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`);
-        });
-        this.on('message', (message) => {
-            this.autoReaction.addReactions(message);
-            this.command.executeCommand(message);
-        });
+        this.on('ready', this.readyListener);
+        this.on("warn", this.warnListener);
+        this.on("error", this.errorListener);
+        this.on('guildMemberUpdate', this.guildMemberUpdateListener);
+        this.on('message', this.messageListener);
     }
 
-    public sendToStatusChannel(str: string, consoleLog?: boolean, currentChannel?: Channel){
-        if (consoleLog == undefined || consoleLog) console.log(str);
-        this.sendToChannel(STATUS_CHANNEL_ID, str, currentChannel);
-    }
+    private readyListener = () => {
+        LOG.sendToStatusChannel(this, `Logged in as ${this.user?.tag}!`)
+            .then(() => {
+                this.user?.setActivity(`${PREFIX}help`, {type: "LISTENING"});
+            }).catch(console.log);
+    };
 
-    public sendToLogChannel(str: string, consoleLog?: boolean, currentChannel?: Channel){
-        if (consoleLog == undefined || consoleLog) console.log(str);
-        this.sendToChannel(LOG_CHANNEL_ID, str, currentChannel);
-    }
+    private warnListener = (error: string) => {
+        LOG.sendToLogChannel(this, error, true).then();
+    };
 
-    public sendToChannel(channelId: string, str: string, currentChannel?: Channel, guildId?: string){
-        if (currentChannel && currentChannel.id === LOG_CHANNEL_ID) return;
-        try {
-            if (guildId == undefined) guildId = GUILD_ID;
-            // @ts-ignore
-            const guilds = this.guilds.cache.get(guildId);
-            if (!guilds) throw new Error(`Guild (${guildId}) not found`);
-            let channel = guilds.channels.cache.get(channelId);
-            if (!channel || !channel.isText()) throw new Error(`Channel (${channelId}) not found`);
-            const txtChannel: PartialTextBasedChannelFields = channel;
-            txtChannel.send(str).then();
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    private errorListener = (error: Error) => {
+        LOG.sendToLogChannel(this, error.message, true).then();
+    };
+
+    private guildMemberUpdateListener = (oldMember: GuildMember | PartialGuildMember, newMember: GuildMember | PartialGuildMember) => {
+        // If the role(s) are present on the old member object but no longer on the new one (i.e role(s) were removed)
+        const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
+        if (removedRoles.size > 0) LOG.sendToLogChannel(this,`The roles ${removedRoles.map(r => r.name)} were removed from ${oldMember.displayName}.`).then();
+        // If the role(s) are present on the new member object but are not on the old one (i.e role(s) were added)
+        const addedRoles = newMember.roles.cache.filter(role => !oldMember.roles.cache.has(role.id));
+        if (addedRoles.size > 0) LOG.sendToLogChannel(this,`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`).then();
+    };
+
+    private messageListener = (message: Message) => {
+        this.autoReaction.handleMessage(message);
+        this.command.handleMessage(message);
+        this.music.handleMessage(message);
+    };
 
 }

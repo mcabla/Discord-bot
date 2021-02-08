@@ -1,5 +1,5 @@
 import {Message} from "discord.js";
-import {CustomClient} from "../Client/CustomClient";
+import {CustomClient} from "../../Client/CustomClient";
 
 export interface IAutoReaction {
     readonly name: string;
