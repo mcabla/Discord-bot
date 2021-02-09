@@ -42,7 +42,7 @@ export default class Announce extends ACommand  {
             if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){
                 WEBHOOK.send(message.channel,text)
                     .then(m => Announce.finalize(message, m, id))
-                    .catch((e)=> LOG.sendToLogChannel(message.client, `A problem occurred while making an anouncement: ${message.url}`,true));
+                    .catch((e)=> LOG.sendToLogChannel(message.client, `A problem occurred while making announcement: ${message.url}`,true).then(() => console.log(e)));
             } else {
                 console.log(`${message.channel.id} is not a text channel.`);
             }
