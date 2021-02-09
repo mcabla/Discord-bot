@@ -1,4 +1,4 @@
-import {Emoji, Message} from "discord.js";
+import {Message} from "discord.js";
 import {ACommand} from "../ACommand";
 import {MESSAGE} from "../../../Util/Message";
 
@@ -10,20 +10,20 @@ export default class React extends ACommand {
     permissions = ['ADMINISTRATOR'];
     guildOnly = true;
     execute(message: Message, args: string[]) {
-        let channelId = args.shift() || "";
-        let guildChannel = message.guild?.channels.resolve(channelId);
-        if (guildChannel?.isText() && args.length > 0) {
-            let messageId = args.shift() || "";
-            guildChannel.messages.fetch(messageId)
-                .then(m => {
-                    this.reactWithEmoji(message, m, args);
-                }).catch(e => {
-                    console.log(e);
-                    message.reply("The message ID is incorrect.").then();
-                });
-        } else {
-            message.reply("The channel ID is incorrect.").then();
-        }
+        let url = args.shift() || "";
+        MESSAGE.getFromUrl(message.client, url)
+            .then(m => {
+                if (m){
+                    if (m.guild?.id === message.guild?.id) {
+                        this.reactWithEmoji(message, m, args);
+                    } else {
+                        message.reply("The message is not in this guild.").then();
+                    }
+                }
+            }).catch(e => {
+                console.log(e);
+                message.reply("Error: Check the message url.").then();
+            });
 
     }
 
