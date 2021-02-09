@@ -10,6 +10,7 @@ interface IEmojiTrigger {
     readonly id: number;
     readonly trigger: string;
     readonly emoji: string;
+    readonly exact: boolean;
 }
 
 export default class Emoji extends AAutoReaction {
@@ -35,7 +36,12 @@ export default class Emoji extends AAutoReaction {
         return MESSAGE.parse(message)
             .then(parsedContent => {
                 this.emojis.forEach((v,k) => {
-                    if (parsedContent.includes(k)){
+                    if (v.exact){
+                        const words = message.content.trim().split(/ +/);
+                        if (words.some(word => word === k)){
+                            MESSAGE.react(message, v.emoji).then().catch(console.log);
+                        }
+                    } else if (parsedContent.includes(k)) {
                         MESSAGE.react(message, v.emoji).then().catch(console.log);
                     }
                 });

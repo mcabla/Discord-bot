@@ -17,6 +17,7 @@ interface ICommandTrigger {
     readonly id: number;
     readonly trigger: string;
     readonly command: string;
+    readonly exact: boolean;
 }
 
 export default class Command extends AAutoReaction {
@@ -50,7 +51,12 @@ export default class Command extends AAutoReaction {
             return MESSAGE.parse(message)
                 .then(parsedContent => {
                     this.commands.forEach((v, k) => {
-                        if (parsedContent.includes(k)) {
+                        if (v.exact){
+                            const words = message.content.trim().split(/ +/);
+                            if (words.some(word => word === k)){
+                                client.command.commands.get(v.command)?.execute(message, []);
+                            }
+                        } else if (parsedContent.includes(k)) {
                             client.command.commands.get(v.command)?.execute(message, []);
                         }
                     });
