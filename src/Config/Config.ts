@@ -6,6 +6,7 @@ export const LOG_CHANNEL_ID: string = process.env.LOG_CHANNEL_ID || config.logCh
 export const STATUS_CHANNEL_ID: string = process.env.STATUS_CHANNEL_ID || config.statusChannelId;
 export const ANNOUNCEMENT_CHANNEL_ID: string = process.env.ANNOUNCEMENT_CHANNEL_ID || config.announcementChannelId;
 export const MEME_CHANNEL_ID: string = process.env.MEME_CHANNEL_ID || config.memeChannelId;
+export const CODEX_CHANNEL_ID: string = process.env.CODEX_CHANNEL_ID || config.codexChannelId;
 export const RANDOM_PERSON_URL: string = process.env.RANDOM_PERSON_URL || config.randomPersonUrl;
 export const RANDOM_MEME_URL: string = process.env.RANDOM_MEME_URL || config.randomMemeUrl;
 export const CODEX_SONGS_URL: string = process.env.CODEX_SONGS_URL || config.codexSongsUrl;

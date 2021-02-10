@@ -2,6 +2,11 @@ import {Message, MessageEmbed, NewsChannel, TextChannel, Webhook} from "discord.
 import {API} from "./Api";
 import {RANDOM_PERSON_URL} from "../Config/Config";
 
+export interface IField {
+    name:string;
+    value: string;
+}
+
 export class WEBHOOK {
     public static get(channel: TextChannel | NewsChannel): Promise<Webhook> {
         return channel.fetchWebhooks()

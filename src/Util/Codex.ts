@@ -1,5 +1,7 @@
 import {API} from "./Api";
 import {CODEX_SONGS_URL} from "../Config/Config";
+import cheerioModule from "cheerio";
+import {IField} from "./Webhook";
 
 interface ISongs {
     value: ISongServer[]
@@ -62,11 +64,63 @@ export class CODEX {
             });
     }
 
-    public static getSongText(song: ISong): Promise<string> {
+    public static getSongText(song: ISong): Promise<IField[]> {
         if (song.text.length > 0){
-            return Promise.resolve(song.text);
+            return Promise.resolve(this.getSongFields(song.text));
         }
-        return Promise.resolve(song.page); //TODO
+        const url = `https://studentencodex.org/lied/${song.url}`;
+        return API.getResponse(url)
+            .then(html => cheerioModule.load(html))
+            .then($ => $('body div.lied').children('p'))
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.next())
+            .then(cheerio => cheerio.html())
+            .then(html => song.text = html || '')
+            .then(this.getSongFields)
+            .then(fields => {
+                if (fields.length === 0){
+                    return [{
+                        name: `Link:`,
+                        value: `[${url}](url)`
+                    }];
+                }
+                return fields;
+            })
+    }
+
+    private static getSongFields(text: string): IField[]{
+        const parts = text.split('<br')
+            .map(part => {
+                const p = part.trim();
+                if (p.startsWith('>')){
+                    return p.replace('>','');
+                }
+                return p;
+            }).filter(part => part !== '');
+
+        const headers = parts.filter(part => /[0-9]/g.test(part) || part.toLowerCase().startsWith('refrein'));
+
+        const fields: IField[] = [];
+        let i = -1;
+        let nextHeader = headers.shift() || '';
+        parts.forEach(part => {
+            if (part === nextHeader){
+                fields.push({
+                   name: part,
+                   value: ''
+                });
+                nextHeader = headers.shift() || '';
+                i++;
+            } else if (fields[i]){
+                fields[i].value += part + '\n';
+            }
+        })
+        return fields;
     }
 
 }

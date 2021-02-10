@@ -2,13 +2,9 @@ import {DMChannel, Message, MessageEmbed} from "discord.js";
 import {ACommand} from "../ACommand";
 import {CODEX, ISong} from "../../../Util/Codex";
 import {LOG} from "../../../Util/Log";
-import {WEBHOOK} from "../../../Util/Webhook";
-import {PREFIX} from "../../../Config/Config";
-
-interface IField {
-    name:string;
-    value: string;
-}
+import {IField, WEBHOOK} from "../../../Util/Webhook";
+import {STRING} from "../../../Util/String";
+import {CODEX_CHANNEL_ID} from "../../../Config/Config";
 
 export default class Ping extends ACommand {
     name = 'codex';
@@ -16,16 +12,15 @@ export default class Ping extends ACommand {
     usage = '';
     aliases = ['c'];
     guildOnly = true;
+    bypassChannelId = CODEX_CHANNEL_ID;
     execute(message: Message, args: string[]) {
-        let action = args.shift() || "";
-        if (this.contains(['page', 'p', 'pagina'], action)) {
+        //let action = args.shift() || "";
+        if (STRING.isNumber(args.join(' '))) {
             return this.page(message, args);
-        } else if (this.contains(['song', 's', 'lied', 'l', 'title','t','titel'], action)) {
+        } else {
             return this.song(message, args);
         }
     }
-
-    private contains = (actions: string[], action: string) => actions.some(a => a === action);
 
     private page(message: Message, args: string[]){
         CODEX.getSongByPage(args.join(' '))
@@ -42,6 +37,7 @@ export default class Ping extends ACommand {
                 if (songs.length === 0){
                     return message.reply('No Songs found.');
                 } else if (songs.length === 1){
+                    console.log('found one song, showing it');
                     return this.sendSong(message,songs[0]);
                 }
                 return message.channel.send(this.makeSelectorEmbed(songs));
@@ -57,11 +53,13 @@ export default class Ping extends ACommand {
                 value: `${song.title} (pagina ${song.page})`
             };
         });
+        if (fields.length > 25){
+            fields.length = 25;
+        }
         return new MessageEmbed({
             color: 0x0082bb,
             title: "Codex",
-            /*description: "Reageer met de bijhorende emoji om het lied te selecteren.",*/
-            description: `${PREFIX}${this.name} p [paginanummer] om het bijhorende lied te verkrijgen.`,
+            /*description: `${PREFIX}${this.name} [paginanummer] om het bijhorende lied te verkrijgen.`,*/
             timestamp: new Date(),
             fields: fields,
         });
@@ -82,7 +80,7 @@ export default class Ping extends ACommand {
             .then(text => new MessageEmbed({
                 color: 0x0082bb,
                 title: song.title,
-                description: text,
+                fields: text,
                 timestamp: new Date(),
             }));
     }
