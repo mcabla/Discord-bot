@@ -14,6 +14,37 @@ export default class Ping extends ACommand {
     guildOnly = true;
     bypassChannelId = CODEX_CHANNEL_ID;
     execute(message: Message, args: string[]) {
+        if (args[0] == '.'){
+            CODEX.getSongs()
+                .then(songs => {
+                    let i =0;
+                    songs.forEach(song => {
+                        setTimeout(() => {
+                            if (+song.page > 179) {
+                                this.sendSong(message, song).catch(e => {
+                                    console.log(song.title, song.page);
+                                    LOG.sendToLogChannel(message.client, e.message, true).then();
+                                });
+                                console.log('n' + i);
+                            }
+                        }, i*1000);
+                        i++;
+                    })
+                })
+            return;
+        } else if (args[0] == '-'){
+            return;
+        } else if (args[0] == '+'){
+            CODEX.getSongs()
+                .then(songs => {
+                    songs.forEach(song => {
+                        if (song.text === ''){
+                            console.log(song.title);
+                        }
+                    });
+                });
+            return;
+        }
         //let action = args.shift() || "";
         if (STRING.isNumber(args.join(' '))) {
             return this.page(message, args);
@@ -80,6 +111,7 @@ export default class Ping extends ACommand {
             .then(text => new MessageEmbed({
                 color: 0x0082bb,
                 title: song.title,
+                description: `Pagina ${song.page}`,
                 fields: text,
                 timestamp: new Date(),
             }));

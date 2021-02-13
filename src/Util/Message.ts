@@ -31,7 +31,7 @@ export class MESSAGE {
         return Promise.reject('Url is incorrect.');
     }
 
-    public static getFromUrl(client: Client, url: string)/*: Promise<Message>*/ {
+    public static getFromUrl(client: Client, url: string): Promise<Message> {
         return MESSAGE.getLocationFromUrl(url)
             .then(location => client.guilds.fetch(location.guildID)
                     .then(guild => guild.channels.resolve(location.channelID))

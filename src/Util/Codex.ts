@@ -1,18 +1,7 @@
 import {API} from "./Api";
 import {CODEX_SONGS_URL} from "../Config/Config";
-import cheerioModule from "cheerio";
 import {IField} from "./Webhook";
-
-interface ISongs {
-    value: ISongServer[]
-}
-
-interface ISongServer {
-    Id: string;
-    Title: string;
-    Page: string;
-    FriendlyUrl: string;
-}
+import {STRING} from "./String";
 
 export interface ISong {
     id: string;
@@ -29,14 +18,7 @@ export class CODEX {
         if (CODEX.songs.length > 0){
             return Promise.resolve(CODEX.songs);
         }
-        return API.get<ISongs>(CODEX_SONGS_URL)
-            .then(songs => songs.value.map<ISong>(song => new class implements ISong {
-                id = song.Id;
-                page = song.Page;
-                text = '';
-                title = song.Title;
-                url = song.FriendlyUrl;
-            }))
+        return API.get<ISong[]>(CODEX_SONGS_URL)
             .then(songs => CODEX.songs = songs);
     }
 
@@ -66,35 +48,40 @@ export class CODEX {
 
     public static getSongText(song: ISong): Promise<IField[]> {
         if (song.text.length > 0){
-            return Promise.resolve(this.getSongFields(song.text));
+            const fields = this.getSongFields(song.text);
+            if ((fields.length >= 25 || fields.length === 0) && song.url !== ''){
+                const url = `https://studentencodex.org/lied/${song.url}`;
+                return Promise.resolve([{
+                    name: `Link:`,
+                    value: `[${url}](${url})`
+                }]);
+            }
+            return Promise.resolve(fields);
         }
-        const url = `https://studentencodex.org/lied/${song.url}`;
-        return API.getResponse(url)
-            .then(html => cheerioModule.load(html))
-            .then($ => $('body div.lied').children('p'))
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.next())
-            .then(cheerio => cheerio.html())
-            .then(html => song.text = html || '')
-            .then(this.getSongFields)
-            .then(fields => {
-                if (fields.length === 0){
-                    return [{
-                        name: `Link:`,
-                        value: `[${url}](url)`
-                    }];
-                }
-                return fields;
-            })
+        const url = `https://www.google.com/search?&q=${STRING.htmlEncode(song.title)}`;
+        return Promise.resolve([{
+            name: `Link:`,
+            value: `[${url}](${url})`
+        }]);
     }
 
     private static getSongFields(text: string): IField[]{
-        const parts = text.split('<br')
+        let fields: IField[] = this.getDefaultSongFields(text);
+
+        if (fields.length === 0){
+            fields = this.getAlternativeSongFields(text);
+        }
+        if (fields.length === 0){
+            fields = this.getChunkSongFields(text);
+        }
+
+        console.log(fields);
+
+        return fields;
+    }
+
+    private static getDefaultSongFields(text: string): IField[] {
+        const parts = text.split('<br>')
             .map(part => {
                 const p = part.trim();
                 if (p.startsWith('>')){
@@ -103,24 +90,89 @@ export class CODEX {
                 return p;
             }).filter(part => part !== '');
 
-        const headers = parts.filter(part => /[0-9]/g.test(part) || part.toLowerCase().startsWith('refrein'));
+        const headers = parts.filter(part => /^\d/.test(part) || part.toLowerCase().startsWith('refrein') || part.toLowerCase().startsWith('keerzang'));
 
         const fields: IField[] = [];
         let i = -1;
         let nextHeader = headers.shift() || '';
+        let invalid = false;
         parts.forEach(part => {
             if (part === nextHeader){
                 fields.push({
-                   name: part,
-                   value: ''
+                    name: part,
+                    value: ''
                 });
                 nextHeader = headers.shift() || '';
                 i++;
-            } else if (fields[i]){
+            } else if (i>= 0 && fields[i]){
                 fields[i].value += part + '\n';
+            } else if (i < 0){
+                invalid = true;
+            }
+        });
+
+        fields.forEach(field => {
+            if (field.value === '') {
+                field.value = `‎`;
             }
         })
+
+        if (invalid) return [];
         return fields;
     }
+
+    private static getAlternativeSongFields(text: string): IField[] {
+        const parts = text.split('<br><br>')
+            .map(part => {
+                const p = part.trim();
+                if (p.startsWith('>')){
+                    return p.replace('>','');
+                }
+                return p;
+            }).filter(part => part !== '');
+
+        const fields: IField[] = [];
+        let i = 1;
+        parts.forEach(part => {
+            fields.push({
+                name: `${i}.`,
+                value: this.replaceHtml(part)
+            });
+            i++;
+        });
+
+        return fields;
+    }
+
+    private static getChunkSongFields(text: string): IField[] {
+        const parts = STRING.chunkSubstr(text, 1024)
+            .map(part => {
+                const p = part.trim();
+                if (p.startsWith('>')){
+                    return p.replace('>','');
+                }
+                return p;
+            }).filter(part => part !== '');
+
+        const fields: IField[] = [];
+        let i = 1;
+        parts.forEach(part => {
+            fields.push({
+                name: `${i}.`,
+                value: this.replaceHtml(part)
+            });
+            i++;
+        });
+
+        return fields;
+    }
+
+    private static replaceHtml(text: string): string {
+        text = text.replace('<br>', '\n');
+        if (text.includes('<br>')) return this.replaceHtml(text);
+        return text;
+    }
+
+
 
 }
