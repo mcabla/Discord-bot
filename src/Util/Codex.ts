@@ -75,8 +75,6 @@ export class CODEX {
             fields = this.getChunkSongFields(text);
         }
 
-        console.log(fields);
-
         return fields;
     }
 
@@ -112,10 +110,13 @@ export class CODEX {
         });
 
         fields.forEach(field => {
+            if (field.name.length > 256 || field.value.length > 1024){
+                invalid = true;
+            }
             if (field.value === '') {
                 field.value = `‎`;
             }
-        })
+        });
 
         if (invalid) return [];
         return fields;
@@ -141,6 +142,17 @@ export class CODEX {
             i++;
         });
 
+        let invalid = false;
+        fields.forEach(field => {
+            if (field.name.length > 256 || field.value.length > 1024){
+                invalid = true;
+            }
+            if (field.value === '') {
+                field.value = `‎`;
+            }
+        });
+
+        if (invalid) return [];
         return fields;
     }
 
