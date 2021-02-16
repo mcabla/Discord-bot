@@ -22,15 +22,9 @@ export class CODEX {
             .then(songs => CODEX.songs = songs);
     }
 
-    public static getSongByPage(page: string): Promise<ISong>{
+    public static getSongByPage(page: string): Promise<ISong[]>{
         return CODEX.getSongs()
-            .then(songs => songs.find(song => song.page === page))
-            .then(song => {
-               if (song !== undefined){
-                   return song;
-               }
-               throw Error("Song not found");
-            });
+            .then(songs => songs.filter(song => song.page === page));
     }
 
     public static getSongsByTitle(title: string): Promise<ISong[]>{

@@ -14,35 +14,25 @@ export default class Ping extends ACommand {
     guildOnly = true;
     bypassChannelId = CODEX_CHANNEL_ID;
     execute(message: Message, args: string[]) {
-        if (STRING.isNumber(args.join(' '))) {
-            return this.page(message, args);
+        let songs: Promise<ISong[]>;
+        const arg = args.join(' ');
+        if (STRING.isNumber(arg)) {
+            songs = CODEX.getSongByPage(arg);
         } else {
-            return this.song(message, args);
+            songs = CODEX.getSongsByTitle(arg);
         }
-    }
-
-    private page(message: Message, args: string[]){
-        CODEX.getSongByPage(args.join(' '))
-            .then(song => this.sendSong(message, song))
-            .catch(e => {
-                LOG.sendToLogChannel(message.client,e.message,true)
-                    .then(() => message.reply('Song not found.'));
-            });
-    }
-
-    private song(message: Message, args: string[]){
-        CODEX.getSongsByTitle(args.join(' '))
-            .then(songs => {
-                if (songs.length === 0){
-                    return message.reply('No Songs found.');
-                } else if (songs.length === 1){
-                    console.log('found one song, showing it');
-                    return this.sendSong(message,songs[0]);
-                }
-                return message.channel.send(this.makeSelectorEmbed(songs));
-            }).catch(e => {
-                LOG.sendToLogChannel(message.client,e.message,true).then();
-            });
+        songs.then(songs => {
+            if (songs.length === 0){
+                return message.reply('No Songs found.');
+            } else if (songs.length === 1){
+                console.log('found one song, showing it');
+                return this.sendSong(message,songs[0]);
+            }
+            return message.channel.send(this.makeSelectorEmbed(songs));
+        }).catch(e => {
+            LOG.sendToLogChannel(message.client,e.message,true)
+                .then(() => message.reply('Songs not found.'));
+        });
     }
 
     private makeSelectorEmbed(songs: ISong[]): MessageEmbed {
