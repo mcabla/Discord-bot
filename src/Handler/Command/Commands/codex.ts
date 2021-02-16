@@ -1,4 +1,4 @@
-import {DMChannel, Message, MessageEmbed} from "discord.js";
+import { DMChannel, Message, MessageEmbed} from "discord.js";
 import {ACommand} from "../ACommand";
 import {CODEX, ISong} from "../../../Util/Codex";
 import {LOG} from "../../../Util/Log";

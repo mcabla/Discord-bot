@@ -66,8 +66,15 @@ export class CODEX {
     }
 
     private static getSongFields(text: string): IField[]{
-        let fields: IField[] = this.getDefaultSongFields(text);
+        let fields: IField[] = [];
 
+        if (!text.includes('<br>')){
+            fields = this.getDefaultSongFields(text);
+        }
+
+        if (fields.length === 0){
+            fields = this.getBrSongFields(text);
+        }
         if (fields.length === 0){
             fields = this.getAlternativeSongFields(text);
         }
@@ -79,6 +86,43 @@ export class CODEX {
     }
 
     private static getDefaultSongFields(text: string): IField[] {
+        text = this.removeBackslashR(text);
+        const parts = text.split('\n\n')
+            .map(part => part.trim())
+            .filter(part => part !== '');
+
+        const fields: IField[] = [];
+        let i = 0;
+        parts.forEach(paragraph => {
+            const lines = paragraph.split('\n');
+            let header = lines.shift() || '';
+            let value: string;
+            let isRefrein = header.toLowerCase().startsWith('refrein') || header.toLowerCase().startsWith('keerzang');
+            if (!isRefrein) {
+                i++;
+            }
+            let headerIsValid = /^\d/.test(header) || isRefrein;
+            if (!headerIsValid){
+                header = (i> 0)? `${i}.`: `‎`;
+                value = paragraph;
+            } else {
+                if (lines.length > 1) {
+                    value = lines.join('\n');
+                } else {
+                    value = lines[0];
+                }
+            }
+
+            fields.push({
+                name: header,
+                value: value
+            });
+
+        });
+        return fields;
+    }
+
+    private static getBrSongFields(text: string): IField[] {
         const parts = text.split('<br>')
             .map(part => {
                 const p = part.trim();
@@ -185,6 +229,13 @@ export class CODEX {
         return text;
     }
 
-
+    private static removeBackslashR(text: string, count?: number): string {
+        if (count === undefined) count = 0;
+        text = text.replace('\r', '');
+        if (text.includes('\r') && count < 10) text = this.removeBackslashR(text, count + 1);
+        if (text.includes('\r') && count < 10) text = this.removeBackslashR(text, count + 1);
+        if (text.includes('\r') && count < 10) text = this.removeBackslashR(text, count + 1);
+        return text;
+    }
 
 }
