@@ -14,6 +14,20 @@ export default class Ping extends ACommand {
     guildOnly = true;
     bypassChannelId = CODEX_CHANNEL_ID;
     execute(message: Message, args: string[]) {
+/*        if (args[0] === '.'){
+            CODEX.getSongs().then(songs => {
+                let s = songs.filter(s => s.text === '')
+                    .map(s => {
+                        return {
+                            page: s.page,
+                            title: s.title
+                        }
+                    });
+                console.log(s.length, s);
+            })
+            return;
+        }*/
+
         let songs: Promise<ISong[]>;
         const arg = args.join(' ');
         if (STRING.isNumber(arg)) {

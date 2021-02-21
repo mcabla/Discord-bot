@@ -73,7 +73,7 @@ export class CustomClient extends Client {
         this.guilds.fetch(GUILD_ID)
             .then(guild => guild.channels.cache
                 .filter((channel) => channel.type === 'voice')
-                .some((channel) => channel.members.size > 0))
+                .some((channel) => channel.members.size > 1))
             .then((shouldMeme) => {
                 if (shouldMeme) {
                     return MESSAGE.meme(this);
