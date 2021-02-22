@@ -11,17 +11,20 @@ import {GUILD_ID, PREFIX} from "../Config/Config";
 import {LOG} from "../Util/Log";
 import {Music} from "../Handler/Music/Music";
 import {MESSAGE} from "../Util/Message";
+import {Data} from "../Data/Data";
 
 export class CustomClient extends Client {
     readonly music: Music;
     readonly autoReaction: AutoReactions;
     readonly command: Commands;
+    readonly data: Data;
 
     constructor() {
         super();
         this.music = new Music(this);
         this.autoReaction = new AutoReactions(this);
         this.command = new Commands(this);
+        this.data = new Data(this);
         this.setup();
     }
 
