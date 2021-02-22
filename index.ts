@@ -1,5 +1,5 @@
 import {CustomClient} from "./src/Client/CustomClient";
-import {DISCORD_TOKEN} from "./src/Config/Config";
+import {DISCORD_TOKEN} from "./src/Data/Config/Config";
 
 const express = require('express');
 const app = express();

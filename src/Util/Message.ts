@@ -1,14 +1,35 @@
-import {Client, Emoji, Message, MessageEmbed, MessageReaction, NewsChannel, Snowflake, TextChannel} from "discord.js";
+import {
+    Client,
+    Emoji,
+    Guild,
+    Message,
+    MessageEmbed,
+    MessageReaction,
+    NewsChannel,
+    Snowflake,
+    TextChannel
+} from "discord.js";
 import {STRING} from "./String";
 import {CustomClient} from "../Client/CustomClient";
-import {GUILD_ID, MEME_CHANNEL_ID, RANDOM_MEME_URL} from "../Config/Config";
 import {API} from "./Api";
 import {WEBHOOK} from "./Webhook";
 
-interface IMeme {
+type Meme = {
     readonly id: number;
     readonly name: string;
-    readonly photo: string;
+    readonly url: string;
+}
+
+type RedditMeme = {
+    readonly postLing: string;
+    readonly subreddit: string;
+    readonly title: string;
+    readonly url: string;
+    readonly nsfw: string;
+    readonly spoiler: string;
+    readonly author: string;
+    readonly ups: string;
+    readonly preview: string[];
 }
 
 interface IMessageLocation {
@@ -77,28 +98,33 @@ export class MESSAGE {
         return Promise.resolve(messageContent);
     }
 
-    public static meme(client: Client): Promise<Message> {
-        return Promise.all([this.getMemeChannel(client), this.getMeme()])
+    public static meme(client: CustomClient, guildId: Snowflake): Promise<Message> {
+        return Promise.all([this.getMemeChannel(client, guildId), this.getMeme(client, guildId)])
             .then(values =>  WEBHOOK.send(values[0],'', values[1]));
     }
 
-    private static getMeme(): Promise<MessageEmbed> {
-        return API.get<IMeme>(RANDOM_MEME_URL)
+    private static getMeme(client: CustomClient, guildId: Snowflake): Promise<MessageEmbed> {
+        const url = client.data.guilds.get(guildId).api.randomMeme;
+        return API.get<Meme|RedditMeme>(url)
             .then(meme => {
                 const randomColor = Math.floor(Math.random()*0xffffff);
                 return new MessageEmbed({
                     color: randomColor,
                     image: {
-                        url: meme.photo.trim().replace(/\s/g, '%20')
+                        url: meme.url.trim().replace(/\s/g, '%20')
                     },
                     timestamp: new Date(),
                 });
             })
     }
 
-    private static getMemeChannel(client: Client): Promise<TextChannel | NewsChannel>{
-        return client.guilds.fetch(GUILD_ID)
-            .then(guild => guild.channels.resolve(MEME_CHANNEL_ID))
+    private static getMemeChannel(client: CustomClient, guildId: Snowflake): Promise<TextChannel | NewsChannel>{
+        const channelID = client.data.guilds.get(guildId).channels.meme;
+        if (channelID === '') {
+            throw Error("Guild does not have a meme channel.");
+        }
+        return client.guilds.fetch(guildId)
+            .then(guild => guild.channels.resolve(channelID))
             .then(channel => {
                 if (channel) return channel;
                 throw Error("Meme Channel not found.");

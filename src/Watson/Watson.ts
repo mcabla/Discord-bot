@@ -1,6 +1,6 @@
 import { IamAuthenticator } from 'ibm-watson/auth'; // Watson Auth
 import {AssistantV2} from "ibm-watson/sdk";
-import {ASSISTANT_ID, ASSISTANT_TTS_API_KEY, ASSISTANT_TTS_URL} from "../Config/Config"; // Watson Assistant
+import {ASSISTANT_ID, ASSISTANT_TTS_API_KEY, ASSISTANT_TTS_URL} from "../Data/Config/Config"; // Watson Assistant
 
 const ASST_API_VERSION = '2020-05-04';
 const DISABLE_SSL = false;

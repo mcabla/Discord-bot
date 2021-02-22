@@ -4,7 +4,7 @@ import {CustomClient} from "../../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
 import {MESSAGE} from "../../../Util/Message";
 import {API} from "../../../Util/Api";
-import {AUTO_REACTIONS_EMOJIS_URL} from "../../../Config/Config";
+import {AUTO_REACTIONS_EMOJIS_URL} from "../../../Data/Config/Config";
 
 interface IEmojiTrigger {
     readonly id: number;

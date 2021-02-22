@@ -1,5 +1,5 @@
 import {API} from "./Api";
-import {CODEX_SONGS_URL} from "../Config/Config";
+import {CODEX_SONGS_URL} from "../Data/Config/Config";
 import {IField} from "./Webhook";
 import {STRING} from "./String";
 

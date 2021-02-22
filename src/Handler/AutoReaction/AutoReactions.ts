@@ -2,7 +2,7 @@ import {CustomClient} from "../../Client/CustomClient";
 import fs from "fs";
 import {IAutoReaction} from "./IAutoReaction";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../../Config/Config";
+import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../../Data/Config/Config";
 import {AAutoReaction} from "./AAutoReaction";
 import {MESSAGE} from "../../Util/Message";
 import {LOG} from "../../Util/Log";

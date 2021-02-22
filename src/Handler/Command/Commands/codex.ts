@@ -4,30 +4,18 @@ import {CODEX, ISong} from "../../../Util/Codex";
 import {LOG} from "../../../Util/Log";
 import {IField, WEBHOOK} from "../../../Util/Webhook";
 import {STRING} from "../../../Util/String";
-import {CODEX_CHANNEL_ID} from "../../../Config/Config";
+import {CustomClient} from "../../../Client/CustomClient";
+import {ICommand} from "../ICommand";
+import {Keys} from "../../../Data/Keys";
 
-export default class Ping extends ACommand {
+export default class Codex extends ACommand {
     name = 'codex';
     description = 'Get codex songs';
     usage = '';
     aliases = ['c'];
     guildOnly = true;
-    bypassChannelId = CODEX_CHANNEL_ID;
+    bypassChannelIdKey = Keys.Guild.codexChannelId;
     execute(message: Message, args: string[]) {
-/*        if (args[0] === '.'){
-            CODEX.getSongs().then(songs => {
-                let s = songs.filter(s => s.text === '')
-                    .map(s => {
-                        return {
-                            page: s.page,
-                            title: s.title
-                        }
-                    });
-                console.log(s.length, s);
-            })
-            return;
-        }*/
-
         let songs: Promise<ISong[]>;
         const arg = args.join(' ');
         if (STRING.isNumber(arg)) {
@@ -87,5 +75,10 @@ export default class Ping extends ACommand {
                 fields: text,
                 timestamp: new Date(),
             }));
+    }
+
+    setup(client: CustomClient): Promise<ICommand> {
+
+        return super.setup(client);
     }
 }

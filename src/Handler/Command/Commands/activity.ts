@@ -5,7 +5,7 @@ export default class Activity extends ACommand {
     name = 'activity';
     description = 'Set the bot\'s activity!';
     usage = "";
-    permissions = [""];
+    permissions = ['ADMINISTRATOR'];
     execute(message: Message, args: string[]) {
         message.client?.user?.setActivity(args.join(' '));
     }

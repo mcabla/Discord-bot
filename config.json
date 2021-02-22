@@ -1,4 +1,6 @@
 {
+  "owner": "",
+  "ownerGuild": "",
   "prefix": "/",
   "logChannelId": "",
   "statusChannelId": "",
@@ -6,7 +8,7 @@
   "announcementChannelId": "",
   "codexChannelId": "",
   "randomPersonUrl": "",
-  "randomMemeUrl": "",
+  "randomMemeUrl": "https://meme-api.herokuapp.com/gimme",
   "codexSongsUrl": "",
   "autoReactionsEmojisUrl": "",
   "autoReactionsCommandsUrl": "",

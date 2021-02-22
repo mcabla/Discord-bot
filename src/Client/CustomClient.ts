@@ -1,5 +1,5 @@
 import {
-    Client,
+    Client, Guild,
     GuildMember,
     Message,
     PartialGuildMember,
@@ -7,11 +7,11 @@ import {
 
 import {AutoReactions} from "../Handler/AutoReaction/AutoReactions";
 import {Commands} from "../Handler/Command/Commands";
-import {GUILD_ID, PREFIX} from "../Config/Config";
 import {LOG} from "../Util/Log";
 import {Music} from "../Handler/Music/Music";
 import {MESSAGE} from "../Util/Message";
 import {Data} from "../Data/Data";
+import {Keys} from "../Data/Keys";
 
 export class CustomClient extends Client {
     readonly music: Music;
@@ -21,10 +21,10 @@ export class CustomClient extends Client {
 
     constructor() {
         super();
+        this.data = new Data(this);
         this.music = new Music(this);
         this.autoReaction = new AutoReactions(this);
         this.command = new Commands(this);
-        this.data = new Data(this);
         this.setup();
     }
 
@@ -33,13 +33,24 @@ export class CustomClient extends Client {
         this.on("warn", this.warnListener);
         this.on("error", this.errorListener);
         this.on('guildMemberUpdate', this.guildMemberUpdateListener);
+        this.on('guildCreate', this.guildCreateListener);
+        this.on('guildDelete', this.guildRemoveListener);
         this.on('message', this.messageListener);
     }
 
     private readyListener = () => {
         LOG.sendToStatusChannel(this, `Logged in as ${this.user?.tag}!`)
             .then(() => {
-                this.user?.setActivity(`${PREFIX}help`, {type: "LISTENING"});
+                this.user?.setActivity(`${this.data.settings.get(Keys.Guild.prefix)}help`, {type: "LISTENING"});
+
+            }).then(() => {
+                const guilds = this.guilds.cache.map(guild => guild);
+                guilds.forEach(guild => {
+                    if (!this.data.guilds.has(guild.id)){
+                        LOG.sendToLogChannel(this,`Guild <${guild.name}> (${guild.id}) does not yes exist in the datastore.`, true).then();
+                        this.data.addGuild(guild);
+                    }
+                })
             }).then(() => {
                 this.setIntervals();
             }).catch(console.log);
@@ -62,6 +73,16 @@ export class CustomClient extends Client {
         if (addedRoles.size > 0) LOG.sendToLogChannel(this,`The roles ${addedRoles.map(r => r.name)} were added to ${oldMember.displayName}.`).then();
     };
 
+    private guildCreateListener = (guild: Guild) => {
+        LOG.sendToStatusChannel(this,`Joined a new guild: ${guild.name}`).then();
+        this.data.addGuild(guild);
+    };
+
+    private guildRemoveListener = (guild: Guild) => {
+        LOG.sendToStatusChannel(this,`Left a guild: ${guild.name}`).then();
+        this.data.removeGuild(guild);
+    };
+
     private messageListener = (message: Message) => {
         this.command.handleMessage(message)
             .then(() => this.autoReaction.handleMessage(message))
@@ -73,17 +94,22 @@ export class CustomClient extends Client {
     }
 
     private meme = () => {
-        this.guilds.fetch(GUILD_ID)
-            .then(guild => guild.channels.cache
-                .filter((channel) => channel.type === 'voice')
-                .some((channel) => channel.members.size > 1))
-            .then((shouldMeme) => {
-                if (shouldMeme) {
-                    return MESSAGE.meme(this);
-                } else {
-                    return;
-                }
-            })
-            .catch(console.log);
+        const guilds = this.guilds.cache.map(guild => guild);
+        guilds.forEach(guild => {
+            this.guilds.fetch(guild.id)
+                .then(guild => guild.channels.cache
+                    .filter((channel) => channel.type === 'voice')
+                    .some((channel) => channel.members.size > 1))
+                .then((shouldMeme) => {
+                    if (shouldMeme && this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).channels.meme.length > 0) {
+                        return MESSAGE.meme(this, guild.id);
+                    } else {
+                        return;
+                    }
+                })
+                .catch(console.log);
+        })
+
+
     }
 }

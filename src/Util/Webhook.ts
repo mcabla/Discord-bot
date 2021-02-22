@@ -1,6 +1,6 @@
 import {Message, MessageEmbed, NewsChannel, TextChannel, Webhook} from "discord.js";
 import {API} from "./Api";
-import {RANDOM_PERSON_URL} from "../Config/Config";
+import {RANDOM_PERSON_URL} from "../Data/Config/Config";
 
 export interface IField {
     name:string;

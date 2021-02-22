@@ -9,8 +9,7 @@ import {
     LOG_CHANNEL_ID,
     PREFIX,
     STATUS_CHANNEL_ID
-} from "../../../Config/Config";
-import {ACommand} from "../../Command/ACommand";
+} from "../../../Data/Config/Config";
 import {Commands} from "../../Command/Commands";
 
 interface ICommandTrigger {

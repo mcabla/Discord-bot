@@ -1,11 +1,12 @@
 import {GuildChannel, Message, NewsChannel, TextChannel} from "discord.js";
 import {ACommand} from "../ACommand";
-import {ANNOUNCEMENT_CHANNEL_ID} from "../../../Config/Config";
+import {ANNOUNCEMENT_CHANNEL_ID} from "../../../Data/Config/Config";
 import {CustomClient} from "../../../Client/CustomClient";
 import {API} from "../../../Util/Api";
 import { STRING} from "../../../Util/String";
 import {LOG} from "../../../Util/Log";
 import {WEBHOOK} from "../../../Util/Webhook";
+import {Keys} from "../../../Data/Keys";
 
 export default class Announce extends ACommand  {
     name = 'announce';
@@ -16,7 +17,7 @@ export default class Announce extends ACommand  {
     cooldown = 5;
     permissions = ['ADMINISTRATOR'];
     guildOnly = true;
-    bypassChannelId = ANNOUNCEMENT_CHANNEL_ID;
+    bypassChannelIdKey = Keys.Guild.announcementChannelId;
     execute(message: Message, args: string[]) {
         if (message.webhookID) return; //In case this gets removed on a higher level.
         let id = args.shift();
@@ -26,7 +27,7 @@ export default class Announce extends ACommand  {
 
         id = id.trimLeft();
 
-        if (message.channel.id === ANNOUNCEMENT_CHANNEL_ID && !id.includes('new-private')) {
+        if (this.bypassChannelIds.some(id => message.channel.id === id) && !id.includes('new-private')) {
             text = `${id} ${text}`;
             id = 'new';
         } else {
@@ -38,7 +39,7 @@ export default class Announce extends ACommand  {
             }
         }
 
-        if (id === 'new' || id == 'new-private' || message.channel.id === ANNOUNCEMENT_CHANNEL_ID) {
+        if (id === 'new' || id == 'new-private' || this.bypassChannelIds.some(id => message.channel.id === id)) {
             if (message.channel instanceof TextChannel || message.channel instanceof NewsChannel){
                 WEBHOOK.send(message.channel,text)
                     .then(m => Announce.finalize(message, m, id))
@@ -108,4 +109,5 @@ export default class Announce extends ACommand  {
                 .catch(console.error);
         }
     }
+
 }

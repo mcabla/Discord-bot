@@ -1,4 +1,4 @@
-import {GUILD_ID, LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Config/Config";
+import {GUILD_ID, LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Data/Config/Config";
 import {Channel, Client, Message, PartialTextBasedChannelFields} from "discord.js";
 
 export class LOG{

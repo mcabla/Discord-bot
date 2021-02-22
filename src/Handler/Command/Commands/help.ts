@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import {ICommand} from "../ICommand";
-import {PREFIX} from "../../../Config/Config";
+import {PREFIX} from "../../../Data/Config/Config";
 import {ACommand} from "../ACommand";
 
 export default class Help extends ACommand {

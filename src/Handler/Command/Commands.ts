@@ -2,7 +2,7 @@ import {CustomClient} from "../../Client/CustomClient";
 import fs from "fs";
 import {ICommand} from "./ICommand";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../../Config/Config";
+import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../../Data/Config/Config";
 import {ACommand} from "./ACommand";
 import {LOG} from "../../Util/Log";
 import {IEventHandler} from "../IEventHandler";
@@ -20,10 +20,11 @@ export class Commands implements IEventHandler {
 
     private setup(client: CustomClient){
         const commandFiles = fs.readdirSync('./src/Handler/Command/Commands').filter((file: string) => file.endsWith('.ts'));
+        client.data.update.setMaxListeners(commandFiles.length);
         for (const file of commandFiles) {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {
-                    const cmd: ICommand = new command();
+                    const cmd: ACommand = new command();
                     cmd.setup(client).then(c => {
                         this.commands.set(cmd.name, cmd);
                     });
@@ -32,7 +33,7 @@ export class Commands implements IEventHandler {
     }
 
     public static bypassChannelCommand(message: Message, commands: Collection<string, ACommand>): string {
-        let cmd: ICommand | undefined = commands.find(cmd => cmd.bypassChannelId != null && cmd.bypassChannelId === message.channel.id);
+        let cmd: ICommand | undefined = commands.find(cmd => cmd.bypassChannelIds.length > 0 && cmd.bypassChannelIds.some(bypassId =>  bypassId.length > 0 && bypassId === message.channel.id));
         return cmd?.name ?? "";
     }
 
