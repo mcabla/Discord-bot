@@ -1,6 +1,6 @@
 export class STRING{
 
-    public static readonly LETTERS = /[a-zA-Z]/g;
+    public static readonly LETTERS = /^[a-zA-Z]+$/;
 
     public static isNumber(value: string | number): boolean {
         return ((value != null) &&

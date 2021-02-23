@@ -66,15 +66,11 @@ export class MESSAGE {
     }
 
     public static react(message: Message, emoji: string, originalMessage?: Message): Promise<MessageReaction> {
-        console.log('react');
         if(!STRING.LETTERS.test(emoji)){
-            console.log('emoji')
             return message.react(emoji);
         } else {
-            console.log('searching');
             let emj = message?.client.emojis.cache.find((emj: Emoji) => emj.name === emoji);
             if (emj != undefined) {
-                console.log('found');
                 return message.react(emj);
             } else {
                 originalMessage?.reply(`${emoji} does not exist.`).then();
