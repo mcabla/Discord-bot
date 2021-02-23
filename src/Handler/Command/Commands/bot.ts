@@ -14,7 +14,7 @@ export default class Bot extends ACommand {
 
        const bots = message.channel.members
            .filter(member => member.user.bot)
-           .map((v,k) => `🔹 <@${v.id}>`)
+           .map((v) => `🔹 <@${v.id}>`)
            .join('\n');
        message.reply(`The channel has the following bots:\n${bots}`).then();
     }
