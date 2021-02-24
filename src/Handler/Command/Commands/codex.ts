@@ -41,8 +41,8 @@ export default class Codex extends ACommand {
     private makeSelectorEmbed(songs: ISong[]): MessageEmbed {
         const fields = songs.map<IField>(song => {
             return {
-                name: `‎`,
-                value: `${song.title} (pagina ${song.page})`
+                name: `${song.title} (pagina ${song.page})`,
+                value: `‎`
             };
         });
         if (fields.length > 25){
@@ -51,7 +51,7 @@ export default class Codex extends ACommand {
         return new MessageEmbed({
             color: 0x0082bb,
             title: "Codex",
-            /*description: `${PREFIX}${this.name} [paginanummer] om het bijhorende lied te verkrijgen.`,*/
+            description: `‎`,
             timestamp: new Date(),
             fields: fields,
         });

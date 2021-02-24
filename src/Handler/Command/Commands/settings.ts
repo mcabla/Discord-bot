@@ -6,19 +6,28 @@ export default class Settings extends ACommand {
     name = 'settings';
     description = 'Customise the bot';
     aliases = ['set'];
-    args = ['key', 'value'];
+    args = [];
     usage = "";
     permissions = ['ADMINISTRATOR'];
     execute(message: Message, args: string[]) {
         const client = message.client;
         if (client instanceof CustomClient){
-            const key = args.shift() || '';
+            let key = args.shift() || '';
+            key = key.trim();
             if (message.guild) {
-                if (args.length > 0){
-                    client.data.updateGuildValue(message.guild?.id, key, args.shift() || '');
+                if (key !== '') {
+                    if (args.length > 0) {
+                        client.data.updateGuildValue(message.guild.id, key, args.shift() || '');
+                    } else {
+                        const value = client.data.getGuildValue(message.guild?.id, key)
+                        message.reply((value.length > 0) ? value : 'EMPTY').then();
+                    }
                 } else {
-                    const value = client.data.getGuildValue(message.guild?.id, key)
-                    message.reply((value.length > 0)? value : 'EMPTY').then();
+                    let data: string = JSON.stringify(client.data.guilds.get(message.guild.id));
+                    data = data.replace(/","/gi, '",\n\t"');
+                    data = data.replace(/{"/gi, '{\n\t"');
+                    data = data.replace(/"}/gi, '"\n}');
+                    message.reply(`\n${data}`);
                 }
             }
 

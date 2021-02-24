@@ -18,8 +18,9 @@ export default class Emoji extends AAutoReaction {
     description = 'reacts with emojis';
     private emojis = new Collection<string, IEmojiTrigger>();
     setup(client: CustomClient): Promise<IAutoReaction> {
+        const url = client.data.settings.get(Keys.Settings.autoReactionsEmojisUrl) || '';
         return super.setup(client)
-            .then(() => API.get<IEmojiTrigger[]>(client.data.settings.get(Keys.Settings.autoReactionsEmojisUrl)))
+            .then(() => API.get<IEmojiTrigger[]>(url))
             .then(res => {
                 this.emojis.clear();
                 for (const trigger of res){

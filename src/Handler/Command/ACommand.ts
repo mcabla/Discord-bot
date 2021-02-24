@@ -20,21 +20,29 @@ export abstract class ACommand implements ICommand {
     abstract execute(message: Message, args: string[]): void;
 
     setup(client: CustomClient): Promise<ICommand> {
-        if (!this.isSetup){
-            this.addListeners(client);
+        if (this.bypassChannelIdKey != Keys.Guild.empty) {
+            this.bypassChannelIds.length = 0;
+            // @ts-ignore
+            client.data.guilds.array().forEach( guildData => {
+                this.addGuild(guildData);
+            });
+            if (!this.isSetup) {
+                client.data.changes.on('changed', this.guildDataChangeListener)
+            }
         }
         this.isSetup = true;
         return Promise.resolve(this);
     }
 
-    private addListeners(client: CustomClient){
-        /*client.data.update.on('addedGuild', this.addedGuildListener);
-        client.data.update.on('updatedGuild', this.updatedGuildListener);
-        client.data.update.on('removedGuild', this.removedGuildListener);*/
-    }
+    private guildDataChangeListener = (keyName: string, oldValue: GuildData, newValue: GuildData) => {
+        // @ts-ignore
+        if (oldValue[this.bypassChannelIdKey] !== newValue[this.bypassChannelIdKey]){
+            this.removeGuild(oldValue);
+            this.addGuild(newValue);
+        }
+    };
 
-    private addedGuildListener = (guildData: GuildData) => {
-        console.log(guildData)
+    private addGuild = (guildData: GuildData) => {
         // @ts-ignore
         const channelId = guildData[this.bypassChannelIdKey];
         if (channelId && channelId.length > 0 && !this.bypassChannelIds.some(item => item === channelId)) {
@@ -42,16 +50,7 @@ export abstract class ACommand implements ICommand {
         }
     };
 
-    private updatedGuildListener = (oldGuildData: GuildData, newGuildData: GuildData) => {
-        console.log(this.name);
-        console.log(oldGuildData);
-        console.log(newGuildData);
-        this.removedGuildListener(oldGuildData);
-        this.addedGuildListener(newGuildData);
-
-    };
-
-    private removedGuildListener = (guildData: GuildData) => {
+    private removeGuild = (guildData: GuildData) => {
         // @ts-ignore
         const channelId = guildData[this.bypassChannelIdKey];
         this.bypassChannelIds.forEach((item, index)=> {

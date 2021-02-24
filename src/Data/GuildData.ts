@@ -1,4 +1,4 @@
-import {Collection, Snowflake} from "discord.js";
+import {Snowflake} from "discord.js";
 
 export type GuildData = {
     NAME: string,

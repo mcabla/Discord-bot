@@ -3,11 +3,13 @@ import {Keys} from "./Keys";
 import * as Config from "./Config/Config";
 import {Guild, Snowflake} from "discord.js";
 import {GuildData} from "./GuildData";
+import EventEmitter from "events";
 const Enmap = require("enmap");
 
 const dataDir = "./src/Data/Store"
 export class Data{
     private readonly client: CustomClient;
+    public changes = new EventEmitter();
 
     constructor(client: CustomClient) {
         this.client = client;
@@ -25,14 +27,19 @@ export class Data{
     readonly guilds = new Enmap({
         name: "guilds",
         autoFetch: true,
-        fetchAll: false,
+        fetchAll: true,
         cloneLevel: 'deep',
         dataDir: dataDir
     });
 
     private setup(client: CustomClient) {
+        this.guilds.changed(this.guildDataChangeListener);
         this.setupSettings();
     }
+
+    private guildDataChangeListener = (keyName: string, oldValue: GuildData, newValue: GuildData) => {
+        this.changes.emit('changed', keyName, oldValue, newValue);
+    };
 
     private setupSettings(){
         this.setSettingIfUndefined(Keys.Settings.owner, Config.OWNER, true);
@@ -44,6 +51,7 @@ export class Data{
         this.setSettingIfUndefined(Keys.Guild.randomMemeUrl, Config.RANDOM_MEME_URL, true);
         this.setSettingIfUndefined(Keys.Settings.codexSongsUrl, Config.CODEX_SONGS_URL, true);
         this.setSettingIfUndefined(Keys.Settings.autoReactionsEmojisUrl, Config.AUTO_REACTIONS_EMOJIS_URL, true);
+        this.setSettingIfUndefined(Keys.Settings.autoReactionsCommandsUrl, Config.AUTO_REACTIONS_COMMANDS_URL, true);
     }
 
     private setSettingIfUndefined(key: string, value: string | number | boolean | undefined, required: boolean) {
@@ -58,7 +66,6 @@ export class Data{
     public updateGuildValue(guildId: Snowflake, key: string, value: string){
         if (this.guilds.has(guildId)) {
             const newData: GuildData = this.guilds.get(guildId);
-            console.log(newData);
             // @ts-ignore
             newData[key] =  value.trim();
 
@@ -69,7 +76,6 @@ export class Data{
     public getGuildValue(guildId: Snowflake, key: string): string {
         if (this.guilds.has(guildId)) {
             const newData: GuildData = this.guilds.get(guildId);
-            console.log(newData);
             // @ts-ignore
             return newData[key] || '';
         } else {

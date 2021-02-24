@@ -6,6 +6,8 @@ import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../../Data/Config/Confi
 import {ACommand} from "./ACommand";
 import {LOG} from "../../Util/Log";
 import {IEventHandler} from "../IEventHandler";
+import {GuildData} from "../../Data/GuildData";
+import {Keys} from "../../Data/Keys";
 
 export class Commands implements IEventHandler {
     readonly client: CustomClient;
@@ -37,7 +39,11 @@ export class Commands implements IEventHandler {
     }
 
     public handleMessage(message: Message): Promise<void> {
-        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return Promise.resolve();
+        if (message.guild){
+            const guildData: GuildData = this.client.data.guilds.get(message.guild.id);
+            const statusChannelId = this.client.data.settings.get(Keys.Settings.statusChannelId);
+            if (message.channel.id === guildData.LOG_CHANNEL_ID || message.channel.id == statusChannelId) return Promise.resolve();
+        }
         const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${Commands.escapeRegex(PREFIX)})\\s*`);
         const bypass = Commands.bypassChannelCommand(message, this.commands);
         if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return Promise.resolve();

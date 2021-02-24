@@ -4,6 +4,7 @@ export namespace Keys {
         ownerGuild = 'OWNER_GUILD',
         statusChannelId = 'STATUS_CHANNEL_ID',
         autoReactionsEmojisUrl = 'AUTO_REACTIONS_EMOJIS_URL',
+        autoReactionsCommandsUrl = 'AUTO_REACTIONS_COMMANDS_URL',
         codexSongsUrl = 'CODEX_SONGS_URL'
     }
 
