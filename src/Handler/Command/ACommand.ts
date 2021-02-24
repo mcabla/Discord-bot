@@ -27,7 +27,7 @@ export abstract class ACommand implements ICommand {
                 this.addGuild(guildData);
             });
             if (!this.isSetup) {
-                client.data.changes.on('changed', this.guildDataChangeListener)
+                client.data.changes.on('changed', this.guildDataChangeListener);
             }
         }
         this.isSetup = true;

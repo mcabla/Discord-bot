@@ -4,7 +4,7 @@ import {ACommand} from "../ACommand";
 export default class Bot extends ACommand {
     name = 'bot';
     aliases = ['bots'];
-    description = 'Print al bots';
+    description = 'Print all bots';
     usage = '';
     guildOnly = true;
     execute(message: Message, args: string[]) {
