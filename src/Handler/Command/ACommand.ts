@@ -28,21 +28,18 @@ export abstract class ACommand implements ICommand {
     }
 
     private addListeners(client: CustomClient){
-        client.data.update.on('addedGuild', this.addedGuildListener);
+        /*client.data.update.on('addedGuild', this.addedGuildListener);
         client.data.update.on('updatedGuild', this.updatedGuildListener);
-        client.data.update.on('removedGuild', this.removedGuildListener);
+        client.data.update.on('removedGuild', this.removedGuildListener);*/
     }
 
     private addedGuildListener = (guildData: GuildData) => {
-        if (guildData.channels.has(this.bypassChannelIdKey)){
-            const channelId = guildData.channels.get(this.bypassChannelIdKey);
-
-            if (channelId && channelId.length > 0 && !this.bypassChannelIds.some(item => item === channelId)){
-                this.bypassChannelIds.push(channelId);
-            }
-            console.log('addedGuild ' + this.name + ' ' + this.bypassChannelIds)
+        console.log(guildData)
+        // @ts-ignore
+        const channelId = guildData[this.bypassChannelIdKey];
+        if (channelId && channelId.length > 0 && !this.bypassChannelIds.some(item => item === channelId)) {
+            this.bypassChannelIds.push(channelId);
         }
-
     };
 
     private updatedGuildListener = (oldGuildData: GuildData, newGuildData: GuildData) => {
@@ -55,13 +52,10 @@ export abstract class ACommand implements ICommand {
     };
 
     private removedGuildListener = (guildData: GuildData) => {
-        if (guildData.channels.has(this.bypassChannelIdKey)){
-            const channelId = guildData.channels.get(this.bypassChannelIdKey);
-            this.bypassChannelIds.forEach((item, index)=> {
-                if (item === channelId) this.bypassChannelIds.splice(index,1);
-            });
-        }
+        // @ts-ignore
+        const channelId = guildData[this.bypassChannelIdKey];
+        this.bypassChannelIds.forEach((item, index)=> {
+            if (item === channelId) this.bypassChannelIds.splice(index,1);
+        });
     };
-
-
 }

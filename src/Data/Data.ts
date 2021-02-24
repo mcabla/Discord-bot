@@ -1,15 +1,13 @@
 import {CustomClient} from "../Client/CustomClient";
 import {Keys} from "./Keys";
 import * as Config from "./Config/Config";
-import {Collection, Guild, Snowflake} from "discord.js";
+import {Guild, Snowflake} from "discord.js";
 import {GuildData} from "./GuildData";
-import EventEmitter from "events";
 const Enmap = require("enmap");
 
 const dataDir = "./src/Data/Store"
 export class Data{
     private readonly client: CustomClient;
-    public update = new EventEmitter();
 
     constructor(client: CustomClient) {
         this.client = client;
@@ -44,7 +42,8 @@ export class Data{
         this.setSettingIfUndefined(Keys.Guild.logChannelId, Config.LOG_CHANNEL_ID, true);
         this.setSettingIfUndefined(Keys.Guild.randomPersonUrl, Config.RANDOM_PERSON_URL, false);
         this.setSettingIfUndefined(Keys.Guild.randomMemeUrl, Config.RANDOM_MEME_URL, true);
-        this.setSettingIfUndefined(Keys.Guild.codexSongsUrl, Config.CODEX_SONGS_URL, true);
+        this.setSettingIfUndefined(Keys.Settings.codexSongsUrl, Config.CODEX_SONGS_URL, true);
+        this.setSettingIfUndefined(Keys.Settings.autoReactionsEmojisUrl, Config.AUTO_REACTIONS_EMOJIS_URL, true);
     }
 
     private setSettingIfUndefined(key: string, value: string | number | boolean | undefined, required: boolean) {
@@ -56,52 +55,50 @@ export class Data{
         }
     }
 
-    private updatedGuild(oldGuildData: GuildData, newGuildData: GuildData) {
-        this.update.emit('addedGuild', oldGuildData, newGuildData);
+    public updateGuildValue(guildId: Snowflake, key: string, value: string){
+        if (this.guilds.has(guildId)) {
+            const newData: GuildData = this.guilds.get(guildId);
+            console.log(newData);
+            // @ts-ignore
+            newData[key] =  value.trim();
+
+            this.guilds.set(guildId, newData);
+        }
     }
 
-    public updateGuildChannels(guildId: Snowflake, channelKey: Keys.Guild, channelId: Snowflake){
+    public getGuildValue(guildId: Snowflake, key: string): string {
         if (this.guilds.has(guildId)) {
-            const newData = this.guilds.get(guildId);
-            const oldData = newData.clone(); //TODO check deep clone
-
-            newData.channels.set(channelKey, channelId);
-
-            this.updatedGuild(oldData, newData);
-
+            const newData: GuildData = this.guilds.get(guildId);
+            console.log(newData);
+            // @ts-ignore
+            return newData[key] || '';
+        } else {
+            return '';
         }
     }
 
     public addGuild(guild: Guild){
         if (!this.guilds.has(guild.id)) {
-            const channels = new Collection<Keys.Guild, Snowflake>();
-            channels.set(Keys.Guild.logChannelId, '');
-            channels.set(Keys.Guild.announcementChannelId, '');
-            channels.set(Keys.Guild.codexChannelId, '');
-            channels.set(Keys.Guild.assistantChannelId, '');
-            channels.set(Keys.Guild.memeChannelId, '');
 
             const guildData: GuildData = {
-                name: guild.name,
-                id: guild.id,
-                prefix: this.settings.get(Keys.Guild.prefix),
-                channels,
-                apis: {
-                    randomPerson: this.settings.get(Keys.Guild.randomPersonUrl),
-                    randomMeme: this.settings.get(Keys.Guild.randomMemeUrl),
-                    codexSongs: this.settings.get(Keys.Guild.codexSongsUrl),
-                }
-            }
+                NAME: guild.name,
+                ID: guild.id,
+                PREFIX: this.settings.get(Keys.Guild.prefix),
+                LOG_CHANNEL_ID: '',
+                ANNOUNCEMENT_CHANNEL_ID: '',
+                CODEX_CHANNEL_ID: '',
+                ASSISTANT_CHANNEL_ID: '',
+                MEME_CHANNEL_ID: '',
+                RANDOM_PERSON_URL: this.settings.get(Keys.Guild.randomPersonUrl),
+                RANDOM_MEME_URL: this.settings.get(Keys.Guild.randomMemeUrl),
+            };
             this.guilds.set(guild.id, guildData);
-            this.update.emit('addedGuild', guildData);
         } else {
             throw new Error(`Guild (${guild.id}) already has a datastore.`);
         }
     }
 
     public removeGuild(guild: Guild){
-        const guildData = this.guilds.get(guild.id);
         this.guilds.delete(guild.id);
-        this.update.emit('removedGuild', guildData);
     }
 }

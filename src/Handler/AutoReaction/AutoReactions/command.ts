@@ -6,11 +6,10 @@ import {MESSAGE} from "../../../Util/Message";
 import {API} from "../../../Util/Api";
 import {
     AUTO_REACTIONS_COMMANDS_URL,
-    LOG_CHANNEL_ID,
-    PREFIX,
-    STATUS_CHANNEL_ID
+    PREFIX
 } from "../../../Data/Config/Config";
 import {Commands} from "../../Command/Commands";
+import {Keys} from "../../../Data/Keys";
 
 interface ICommandTrigger {
     readonly id: number;
@@ -39,10 +38,14 @@ export default class Command extends AAutoReaction {
     }
 
     execute(message: Message): Promise<void> {
-        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID || message.author.bot || message.webhookID ) return Promise.resolve();
+        if (message.guild === null) return Promise.resolve();
 
         const client = message.client;
         if (client instanceof CustomClient) {
+            const guildData = client.data.guilds.get(message.guild.id);
+            const statusChannelId = client.data.settings.get(Keys.Settings.statusChannelId);
+            if (message.channel.id === guildData.LOG_CHANNEL_ID || message.channel.id == statusChannelId || message.author.bot || message.webhookID ) return Promise.resolve();
+
             const prefixRegex = new RegExp(`^(<@!?${client.user?.id}>|${Commands.escapeRegex(PREFIX)})\\s*`);
             const bypass = Commands.bypassChannelCommand(message, client.command.commands);
             if (prefixRegex.test(message.content) || bypass.length > 0) return Promise.resolve();

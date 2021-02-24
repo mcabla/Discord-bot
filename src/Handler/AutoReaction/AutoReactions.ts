@@ -2,11 +2,11 @@ import {CustomClient} from "../../Client/CustomClient";
 import fs from "fs";
 import {IAutoReaction} from "./IAutoReaction";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../../Data/Config/Config";
 import {AAutoReaction} from "./AAutoReaction";
 import {MESSAGE} from "../../Util/Message";
 import {LOG} from "../../Util/Log";
 import {IEventHandler} from "../IEventHandler";
+import {Keys} from "../../Data/Keys";
 
 export class AutoReactions implements IEventHandler {
     readonly client: CustomClient;
@@ -57,7 +57,15 @@ export class AutoReactions implements IEventHandler {
     }
 
     public handleMessage(message: Message): Promise<void> {
-        if (message.channel.id === LOG_CHANNEL_ID || message.channel.id == STATUS_CHANNEL_ID) return Promise.resolve();
+        if (message.guild){
+            if (message.client instanceof CustomClient) {
+                const guildData = message.client.data.guilds.get(message.guild.id);
+                const statusChannelId = message.client.data.settings.get(Keys.Settings.statusChannelId);
+                if (message.channel.id === guildData.LOG_CHANNEL_ID || message.channel.id == statusChannelId) return Promise.resolve();
+            } else {
+                return Promise.resolve();
+            }
+        }
 
         return MESSAGE.parse(message)
             .then(parsedContent => {

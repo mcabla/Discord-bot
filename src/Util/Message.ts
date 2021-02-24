@@ -1,7 +1,6 @@
 import {
     Client,
     Emoji,
-    Guild,
     Message,
     MessageEmbed,
     MessageReaction,
@@ -100,7 +99,7 @@ export class MESSAGE {
     }
 
     private static getMeme(client: CustomClient, guildId: Snowflake): Promise<MessageEmbed> {
-        const url = client.data.guilds.get(guildId).api.randomMeme;
+        const url = client.data.guilds.get(guildId).RANDOM_MEME_URL;
         return API.get<Meme|RedditMeme>(url)
             .then(meme => {
                 const randomColor = Math.floor(Math.random()*0xffffff);
@@ -115,7 +114,7 @@ export class MESSAGE {
     }
 
     private static getMemeChannel(client: CustomClient, guildId: Snowflake): Promise<TextChannel | NewsChannel>{
-        const channelID = client.data.guilds.get(guildId).channels.meme;
+        const channelID = client.data.guilds.get(guildId).MEME_CHANNEL_ID;
         if (channelID === '') {
             throw Error("Guild does not have a meme channel.");
         }

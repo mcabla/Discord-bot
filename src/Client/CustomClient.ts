@@ -86,7 +86,8 @@ export class CustomClient extends Client {
     private messageListener = (message: Message) => {
         this.command.handleMessage(message)
             .then(() => this.autoReaction.handleMessage(message))
-            .then(() => this.music.handleMessage(message));
+            .then(() => this.music.handleMessage(message))
+            .catch(console.log);
     };
 
     private setIntervals() {
@@ -101,7 +102,7 @@ export class CustomClient extends Client {
                     .filter((channel) => channel.type === 'voice')
                     .some((channel) => channel.members.size > 1))
                 .then((shouldMeme) => {
-                    if (shouldMeme && this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).channels.meme.length > 0) {
+                    if (shouldMeme && this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).MEME_CHANNEL_ID > 0) {
                         return MESSAGE.meme(this, guild.id);
                     } else {
                         return;

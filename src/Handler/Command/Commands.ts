@@ -20,7 +20,6 @@ export class Commands implements IEventHandler {
 
     private setup(client: CustomClient){
         const commandFiles = fs.readdirSync('./src/Handler/Command/Commands').filter((file: string) => file.endsWith('.ts'));
-        client.data.update.setMaxListeners(commandFiles.length);
         for (const file of commandFiles) {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {

@@ -3,10 +3,14 @@ export namespace Keys {
         owner = 'OWNER',
         ownerGuild = 'OWNER_GUILD',
         statusChannelId = 'STATUS_CHANNEL_ID',
+        autoReactionsEmojisUrl = 'AUTO_REACTIONS_EMOJIS_URL',
+        codexSongsUrl = 'CODEX_SONGS_URL'
     }
 
     export enum Guild {
         empty = '',
+        name = 'NAME',
+        id = 'ID',
         prefix = 'PREFIX',
         logChannelId = 'LOG_CHANNEL_ID',
         announcementChannelId = 'ANNOUNCEMENT_CHANNEL_ID',
@@ -14,8 +18,6 @@ export namespace Keys {
         assistantChannelId = 'ASSISTANT_CHANNEL_ID',
         memeChannelId = 'MEME_CHANNEL_ID',
         randomPersonUrl = 'RANDOM_PERSON_URL',
-        randomMemeUrl = 'RANDOM_MEME_URL',
-        codexSongsUrl = 'CODEX_SONGS_URL',
-
+        randomMemeUrl = 'RANDOM_MEME_URL'
     }
 }

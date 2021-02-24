@@ -1,7 +1,8 @@
 import {API} from "./Api";
-import {CODEX_SONGS_URL} from "../Data/Config/Config";
 import {IField} from "./Webhook";
 import {STRING} from "./String";
+import {CustomClient} from "../Client/CustomClient";
+import {Keys} from "../Data/Keys";
 
 export interface ISong {
     id: string;
@@ -14,22 +15,22 @@ export interface ISong {
 export class CODEX {
     private static songs: ISong[] = [];
 
-    public static getSongs(): Promise<ISong[]> {
+    public static getSongs(client: CustomClient): Promise<ISong[]> {
         if (CODEX.songs.length > 0){
             return Promise.resolve(CODEX.songs);
         }
-        return API.get<ISong[]>(CODEX_SONGS_URL)
+        return API.get<ISong[]>(client.data.settings.get(Keys.Settings.codexSongsUrl))
             .then(songs => CODEX.songs = songs);
     }
 
-    public static getSongByPage(page: string): Promise<ISong[]>{
-        return CODEX.getSongs()
+    public static getSongByPage(client: CustomClient, page: string): Promise<ISong[]>{
+        return CODEX.getSongs(client)
             .then(songs => songs.filter(song => song.page === page));
     }
 
-    public static getSongsByTitle(title: string): Promise<ISong[]>{
+    public static getSongsByTitle(client: CustomClient, title: string): Promise<ISong[]>{
         title = title.trim().toLocaleLowerCase();
-        return CODEX.getSongs()
+        return CODEX.getSongs(client)
             .then(songs => {
                 songs = songs.filter(song => song.title.toLocaleLowerCase().includes(title));
                 const song = songs.find(song => song.title.toLocaleLowerCase() === title);

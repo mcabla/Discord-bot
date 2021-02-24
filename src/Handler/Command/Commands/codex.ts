@@ -16,12 +16,13 @@ export default class Codex extends ACommand {
     guildOnly = true;
     bypassChannelIdKey = Keys.Guild.codexChannelId;
     execute(message: Message, args: string[]) {
+        if (!(message.client instanceof CustomClient)) return;
         let songs: Promise<ISong[]>;
         const arg = args.join(' ');
         if (STRING.isNumber(arg)) {
-            songs = CODEX.getSongByPage(arg);
+            songs = CODEX.getSongByPage(message.client, arg);
         } else {
-            songs = CODEX.getSongsByTitle(arg);
+            songs = CODEX.getSongsByTitle(message.client, arg);
         }
         songs.then(songs => {
             if (songs.length === 0){

@@ -4,7 +4,7 @@ import {CustomClient} from "../../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
 import {MESSAGE} from "../../../Util/Message";
 import {API} from "../../../Util/Api";
-import {AUTO_REACTIONS_EMOJIS_URL} from "../../../Data/Config/Config";
+import {Keys} from "../../../Data/Keys";
 
 interface IEmojiTrigger {
     readonly id: number;
@@ -19,7 +19,7 @@ export default class Emoji extends AAutoReaction {
     private emojis = new Collection<string, IEmojiTrigger>();
     setup(client: CustomClient): Promise<IAutoReaction> {
         return super.setup(client)
-            .then(() => API.get<IEmojiTrigger[]>(AUTO_REACTIONS_EMOJIS_URL))
+            .then(() => API.get<IEmojiTrigger[]>(client.data.settings.get(Keys.Settings.autoReactionsEmojisUrl)))
             .then(res => {
                 this.emojis.clear();
                 for (const trigger of res){

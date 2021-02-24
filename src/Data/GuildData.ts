@@ -1,14 +1,14 @@
 import {Collection, Snowflake} from "discord.js";
-import {Keys} from "./Keys";
 
 export type GuildData = {
-    name: string,
-    id: Snowflake,
-    prefix: string,
-    channels: Collection<Keys.Guild, Snowflake>,
-    apis: {
-        randomPerson: string,
-        randomMeme: string,
-        codexSongs: string
-    }
+    NAME: string,
+    ID: Snowflake,
+    PREFIX: string,
+    LOG_CHANNEL_ID: string,
+    ANNOUNCEMENT_CHANNEL_ID: string,
+    CODEX_CHANNEL_ID: string,
+    ASSISTANT_CHANNEL_ID: string,
+    MEME_CHANNEL_ID: string,
+    RANDOM_PERSON_URL: string,
+    RANDOM_MEME_URL: string,
 }
