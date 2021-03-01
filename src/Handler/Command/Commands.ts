@@ -39,17 +39,19 @@ export class Commands implements IEventHandler {
     }
 
     public handleMessage(message: Message): Promise<void> {
+        let prefix = PREFIX;
         if (message.guild){
             const guildData: GuildData = this.client.data.guilds.get(message.guild.id);
             const statusChannelId = this.client.data.settings.get(Keys.Settings.statusChannelId);
             if (message.channel.id === guildData.LOG_CHANNEL_ID || message.channel.id == statusChannelId) return Promise.resolve();
+            if (guildData.PREFIX.length > 0) prefix = guildData.PREFIX;
         }
-        const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${Commands.escapeRegex(PREFIX)})\\s*`);
+        const prefixRegex = new RegExp(`^(<@!?${this.client.user?.id}>|${Commands.escapeRegex(prefix)})\\s*`);
         const bypass = Commands.bypassChannelCommand(message, this.commands);
         if (!(prefixRegex.test(message.content) || bypass.length > 0) || message.author.bot || message.webhookID) return Promise.resolve();
 
         message.channel.startTyping().then();
-        return this.handleCommand(message, prefixRegex, bypass)
+        return this.handleCommand(message, prefixRegex, bypass, prefix)
             .then(() => {
                 if (!message.channel.deleted){
                     message.channel.stopTyping(true);
@@ -62,7 +64,7 @@ export class Commands implements IEventHandler {
             });
     }
 
-    private handleCommand(message: Message, prefixRegex: RegExp, bypass: string): Promise<Message> {
+    private handleCommand(message: Message, prefixRegex: RegExp, bypass: string, prefix: string): Promise<Message> {
         const matchedPrefix = message.content.match(prefixRegex);
         let length = (!matchedPrefix || matchedPrefix.length <= 1 )? 0 : matchedPrefix[1].length;
         const args = message.content.slice(length).trim().split(/ +/);
@@ -95,7 +97,7 @@ export class Commands implements IEventHandler {
         if (command.args.length > 0 && !args.length) {
             let reply = `You didn't provide any arguments, ${message.author}!`;
             if (command.usage) {
-                reply += `\nThe proper usage would be: \`${PREFIX}${command.name} ${command.usage}\``;
+                reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
             }
             return message.reply(reply);
         }

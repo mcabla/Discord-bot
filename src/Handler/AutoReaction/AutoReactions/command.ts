@@ -4,10 +4,6 @@ import {CustomClient} from "../../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
 import {Messages} from "../../../Util/Messages";
 import {API} from "../../../Util/Api";
-import {
-    AUTO_REACTIONS_COMMANDS_URL,
-    PREFIX
-} from "../../../Data/Config/Config";
 import {Commands} from "../../Command/Commands";
 import {Keys} from "../../../Data/Keys";
 import {GuildData} from "../../../Data/GuildData";

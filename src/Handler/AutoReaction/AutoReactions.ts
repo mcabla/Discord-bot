@@ -79,8 +79,8 @@ export class AutoReactions implements IEventHandler {
             }).then(triggered => {
                 triggered.map((reaction: IAutoReaction) => {
                     reaction.execute(message)
-                        .then(() => LOG.sendToLogChannel(this.client,`Ran ${reaction.name} for: ${message.url}`, false))
-                        .catch(error => LOG.sendToLogChannel(this.client, error, false));
+                        .then(() => LOG.sendToLogChannel(this.client,`Ran ${reaction.name} for: ${message.url}`, false, message.channel))
+                        .catch(error => LOG.sendToLogChannel(this.client, error, false, message.channel));
                 })
             });
     }

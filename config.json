@@ -1,7 +1,7 @@
 {
   "owner": "",
   "ownerGuild": "",
-  "prefix": "/",
+  "prefix": "i!",
   "logChannelId": "",
   "statusChannelId": "",
   "memeChannelId": "",
@@ -12,7 +12,6 @@
   "codexSongsUrl": "",
   "autoReactionsEmojisUrl": "",
   "autoReactionsCommandsUrl": "",
-  "guildId": "",
   "discordToken": "",
   "assistantId": "",
   "assistantChannelId": "",

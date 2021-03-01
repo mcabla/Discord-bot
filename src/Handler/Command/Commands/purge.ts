@@ -25,7 +25,7 @@ export default class Purge extends ACommand {
             message.channel.bulkDelete(n)
                 .then(messages => message.channel.send(`Bulk deleted ${messages.size} messages`))
                 .then(() => {
-                    LOG.sendToLogChannel(message.client,`${message.author} purged ${n} messages from channel ${message.channel.id}`).then();
+                    LOG.sendToLogChannel(message.client,`${message.author} purged ${n} messages from channel ${message.channel.id}`, false, message.channel).then();
                 })
                 .catch(e => {
                     console.log(e);

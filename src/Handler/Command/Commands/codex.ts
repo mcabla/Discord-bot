@@ -18,7 +18,10 @@ export default class Codex extends ACommand {
     execute(message: Message, args: string[]) {
         if (!(message.client instanceof CustomClient)) return;
         let songs: Promise<ISong[]>;
-        const arg = args.join(' ');
+        const arg = args.join(' ').trim();
+        if (args.length === 0) {
+            return message.reply('Please provide a page or title.')
+        }
         if (STRING.isNumber(arg)) {
             songs = CODEX.getSongByPage(message.client, arg);
         } else {
@@ -26,14 +29,13 @@ export default class Codex extends ACommand {
         }
         songs.then(songs => {
             if (songs.length === 0){
-                return message.reply('No Songs found.');
+                return message.reply('No Songs found. Please contact Kaasje from Ideefix if you think this is a mistake');
             } else if (songs.length === 1){
-                console.log('found one song, showing it');
                 return this.sendSong(message,songs[0]);
             }
             return message.channel.send(this.makeSelectorEmbed(songs));
         }).catch(e => {
-            LOG.sendToLogChannel(message.client,e.message,true)
+            LOG.sendToLogChannel(message.client,e.message,true, message.channel)
                 .then(() => message.reply('Songs not found.'));
         });
     }

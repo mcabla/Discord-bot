@@ -1,4 +1,4 @@
-import {GUILD_ID, LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Data/Config/Config";
+import {LOG_CHANNEL_ID, OWNER_GUILD, STATUS_CHANNEL_ID} from "../Data/Config/Config";
 import {Channel, Client, GuildChannel, Message, PartialTextBasedChannelFields} from "discord.js";
 import {CustomClient} from "../Client/CustomClient";
 import {Keys} from "../Data/Keys";
@@ -7,7 +7,7 @@ export class LOG{
     public static sendToChannel(client: Client, channelId: string, str: string, currentChannel?: Channel, guildId?: string): Promise<Message> {
         if (currentChannel && currentChannel.id === channelId) return Promise.reject("Not allowed to log logging channel.");
         try {
-            if (guildId == undefined) guildId = GUILD_ID;
+            if (guildId == undefined) guildId = OWNER_GUILD;
             // @ts-ignore
             const guilds = client.guilds.cache.get(guildId);
             if (!guilds) throw new Error(`Guild (${guildId}) not found`);
