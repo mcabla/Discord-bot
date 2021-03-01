@@ -1,6 +1,6 @@
 import {Message} from "discord.js";
 import {ACommand} from "../ACommand";
-import {MESSAGE} from "../../../Util/Message";
+import {Messages} from "../../../Util/Messages";
 
 export default class React extends ACommand {
     name = 'react';
@@ -11,7 +11,7 @@ export default class React extends ACommand {
     guildOnly = true;
     execute(message: Message, args: string[]) {
         let url = args.shift() || "";
-        MESSAGE.getFromUrl(message.client, url)
+        Messages.getFromUrl(message.client, url)
             .then(m => {
                 if (m){
                     if (m.guild?.id === message.guild?.id) {
@@ -30,7 +30,7 @@ export default class React extends ACommand {
     private reactWithEmoji(originalMessage: Message,message: Message, args: string[]) {
         let i = 0;
         args.forEach(arg => {
-            MESSAGE.react(message, arg, originalMessage).then(() => i++).catch(console.log);
+            Messages.react(message, arg, originalMessage).then(() => i++).catch(console.log);
         });
 
         setTimeout(() => {

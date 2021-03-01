@@ -3,7 +3,7 @@ import fs from "fs";
 import {IAutoReaction} from "./IAutoReaction";
 import {Collection, Message} from "discord.js";
 import {AAutoReaction} from "./AAutoReaction";
-import {MESSAGE} from "../../Util/Message";
+import {Messages} from "../../Util/Messages";
 import {LOG} from "../../Util/Log";
 import {IEventHandler} from "../IEventHandler";
 import {Keys} from "../../Data/Keys";
@@ -60,14 +60,15 @@ export class AutoReactions implements IEventHandler {
         if (message.guild){
             if (message.client instanceof CustomClient) {
                 const guildData = message.client.data.guilds.get(message.guild.id);
+                if (guildData.TRIGGERS !== 'true' || message.channel.id === guildData.LOG_CHANNEL_ID) return Promise.resolve();
                 const statusChannelId = message.client.data.settings.get(Keys.Settings.statusChannelId);
-                if (message.channel.id === guildData.LOG_CHANNEL_ID || message.channel.id == statusChannelId) return Promise.resolve();
+                if (message.channel.id == statusChannelId) return Promise.resolve();
             } else {
                 return Promise.resolve();
             }
         }
 
-        return MESSAGE.parse(message)
+        return Messages.parse(message)
             .then(parsedContent => {
                 if (this.triggerWords.some(triggerWord => parsedContent.includes(triggerWord))){
                     return this.autoReactions

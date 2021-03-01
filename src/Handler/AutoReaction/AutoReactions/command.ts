@@ -2,7 +2,7 @@ import {Collection, Message} from "discord.js";
 import {AAutoReaction} from "../AAutoReaction";
 import {CustomClient} from "../../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
-import {MESSAGE} from "../../../Util/Message";
+import {Messages} from "../../../Util/Messages";
 import {API} from "../../../Util/Api";
 import {
     AUTO_REACTIONS_COMMANDS_URL,
@@ -52,7 +52,7 @@ export default class Command extends AAutoReaction {
             const bypass = Commands.bypassChannelCommand(message, client.command.commands);
             if (prefixRegex.test(message.content) || bypass.length > 0) return Promise.resolve();
 
-            return MESSAGE.parse(message)
+            return Messages.parse(message)
                 .then(parsedContent => {
                     this.commands.forEach((v, k) => {
                         if (v.exact){

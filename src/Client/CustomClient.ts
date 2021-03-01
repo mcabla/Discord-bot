@@ -9,7 +9,7 @@ import {AutoReactions} from "../Handler/AutoReaction/AutoReactions";
 import {Commands} from "../Handler/Command/Commands";
 import {LOG} from "../Util/Log";
 import {Music} from "../Handler/Music/Music";
-import {MESSAGE} from "../Util/Message";
+import {Messages} from "../Util/Messages";
 import {Data} from "../Data/Data";
 import {Keys} from "../Data/Keys";
 
@@ -97,18 +97,20 @@ export class CustomClient extends Client {
     private meme = () => {
         const guilds = this.guilds.cache.map(guild => guild);
         guilds.forEach(guild => {
-            this.guilds.fetch(guild.id)
-                .then(guild => guild.channels.cache
-                    .filter((channel) => channel.type === 'voice')
-                    .some((channel) => channel.members.size > 1))
-                .then((shouldMeme) => {
-                    if (shouldMeme && this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).MEME_CHANNEL_ID > 0) {
-                        return MESSAGE.meme(this, guild.id);
-                    } else {
-                        return;
-                    }
-                })
-                .catch(console.log);
+            if (this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).TRIGGERS === 'true') {
+                this.guilds.fetch(guild.id)
+                    .then(guild => guild.channels.cache
+                        .filter((channel) => channel.type === 'voice')
+                        .some((channel) => channel.members.size > 1))
+                    .then((shouldMeme) => {
+                        if (shouldMeme && this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).MEME_CHANNEL_ID.length > 0) {
+                            return Messages.meme(this, guild.id);
+                        } else {
+                            return;
+                        }
+                    })
+                    .catch(console.log);
+            }
         })
 
 

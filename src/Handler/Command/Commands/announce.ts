@@ -1,12 +1,11 @@
 import {GuildChannel, Message, NewsChannel, TextChannel} from "discord.js";
 import {ACommand} from "../ACommand";
-import {ANNOUNCEMENT_CHANNEL_ID} from "../../../Data/Config/Config";
 import {CustomClient} from "../../../Client/CustomClient";
 import {API} from "../../../Util/Api";
-import { STRING} from "../../../Util/String";
 import {LOG} from "../../../Util/Log";
 import {WEBHOOK} from "../../../Util/Webhook";
 import {Keys} from "../../../Data/Keys";
+import {Messages} from "../../../Util/Messages";
 
 export default class Announce extends ACommand  {
     name = 'announce';
@@ -52,36 +51,37 @@ export default class Announce extends ACommand  {
         }
     }
 
-    private static editMessage(message: Message, id: string | undefined, text: string): Promise<any> {
-        if (id === undefined || !STRING.isNumber(id)) {
+    private static editMessage(message: Message, url: string | undefined, text: string): Promise<any> {
+        if (url === undefined) {
             if (message.client instanceof CustomClient) {
-                message.reply(`The first argument (${id}) was not correct.`).then();
+                message.reply(`The url (${url}) was not correct.`).then();
             }
             return Promise.resolve();
         }
-        let guildChannel = message.guild?.channels.resolve(ANNOUNCEMENT_CHANNEL_ID);
-        if (guildChannel?.isText()) {
-            return guildChannel.messages.fetch(id)
-                .then(m => {
-                    if (m.webhookID){
-                        m.fetchWebhook()
-                            .then(wh => `${wh.url}/messages/${id}`)
-                            .then(url => {
-                                const params = {"content": text};
-                                return API.patch(url, JSON.stringify(params))
-                                    .then(() =>  this.finalize(message, m, id));
-                            }).catch(err => {
-                                return message.reply('An unknown error occurred!').then(() => console.error(err));
-                            });
-                    } else if (m.author.bot && m.author.id == message.client.user?.id) {
-                            m.edit(text);
-                    } else {
-                        message.reply("I'm not authorised to edit this message.").then();
-                    }
-
-                }).catch(console.log);
-        }
-        return Promise.resolve();
+        return Messages.getLocationFromUrl(url)
+            .then(location => {
+                if (location.guildID !== message.guild?.id) {
+                    return message.reply(`That message does not belong to this server.`).then();
+                }
+                return Messages.getFromUrl(message.client, url)
+                    .then(m => {
+                        if (m.webhookID){
+                            m.fetchWebhook()
+                                .then(wh => `${wh.url}/messages/${m.id}`)
+                                .then(url => {
+                                    const params = {"content": text};
+                                    return API.patch(url, JSON.stringify(params))
+                                        .then(() =>  this.finalize(message, m, m.id));
+                                }).catch(err => {
+                                    return message.reply('An unknown error occurred!').then(() => console.error(err));
+                                });
+                        } else if (m.author.bot && m.author.id == message.client.user?.id) {
+                            return m.edit(text);
+                        } else {
+                            return message.reply("I'm not authorised to edit this message.").then();
+                        }
+                    }).catch(console.log);
+            });
     }
 
     private static finalize(message: Message, newMessage: Message, id: string | undefined,){

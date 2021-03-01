@@ -1,9 +1,11 @@
 import {GUILD_ID, LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../Data/Config/Config";
-import {Channel, Client, Message, PartialTextBasedChannelFields} from "discord.js";
+import {Channel, Client, GuildChannel, Message, PartialTextBasedChannelFields} from "discord.js";
+import {CustomClient} from "../Client/CustomClient";
+import {Keys} from "../Data/Keys";
 
 export class LOG{
     public static sendToChannel(client: Client, channelId: string, str: string, currentChannel?: Channel, guildId?: string): Promise<Message> {
-        if (currentChannel && currentChannel.id === LOG_CHANNEL_ID) return Promise.reject("Not allowed to log logging channel.");
+        if (currentChannel && currentChannel.id === channelId) return Promise.reject("Not allowed to log logging channel.");
         try {
             if (guildId == undefined) guildId = GUILD_ID;
             // @ts-ignore
@@ -26,6 +28,13 @@ export class LOG{
 
     public static sendToLogChannel(client: Client, str: string, consoleLog?: boolean, currentChannel?: Channel): Promise<Message> {
         if (consoleLog == undefined || consoleLog) console.log(str);
+        if (client instanceof CustomClient && currentChannel instanceof GuildChannel){
+            const guildId = currentChannel.guild.id;
+            const channelId = client.data.getGuildValue(guildId, Keys.Guild.logChannelId);
+            if (channelId !== ''){
+                return LOG.sendToChannel(client, channelId, str, currentChannel, guildId);
+            }
+        }
         return LOG.sendToChannel(client, LOG_CHANNEL_ID, str, currentChannel);
     }
 }

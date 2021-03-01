@@ -18,6 +18,7 @@ export namespace Keys {
         codexChannelId = 'CODEX_CHANNEL_ID',
         assistantChannelId = 'ASSISTANT_CHANNEL_ID',
         memeChannelId = 'MEME_CHANNEL_ID',
+        triggers = 'TRIGGERS',
         randomPersonUrl = 'RANDOM_PERSON_URL',
         randomMemeUrl = 'RANDOM_MEME_URL'
     }

@@ -1,8 +1,5 @@
 import {CustomClient} from "../../Client/CustomClient";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, STATUS_CHANNEL_ID} from "../../Data/Config/Config";
-import {MESSAGE} from "../../Util/Message";
-import {LOG} from "../../Util/Log";
 import {IEventHandler} from "../IEventHandler";
 
 export class Music implements IEventHandler {

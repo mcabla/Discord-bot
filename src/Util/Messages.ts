@@ -37,7 +37,7 @@ interface IMessageLocation {
     readonly messageID: Snowflake;
 }
 
-export class MESSAGE {
+export class Messages {
     public static getLocationFromUrl(url: string): Promise<IMessageLocation>{
         const groups = url.match(/(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li|com))\/([a-zA-z]*)\/(\d*)\/(\d*)\/(\d*)/);
         if (groups) {
@@ -52,7 +52,7 @@ export class MESSAGE {
     }
 
     public static getFromUrl(client: Client, url: string): Promise<Message> {
-        return MESSAGE.getLocationFromUrl(url)
+        return Messages.getLocationFromUrl(url)
             .then(location => client.guilds.fetch(location.guildID)
                     .then(guild => guild.channels.resolve(location.channelID))
                     .then(channel => {

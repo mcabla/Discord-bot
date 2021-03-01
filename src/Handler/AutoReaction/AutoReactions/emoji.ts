@@ -2,7 +2,7 @@ import {Collection, Message} from "discord.js";
 import {AAutoReaction} from "../AAutoReaction";
 import {CustomClient} from "../../../Client/CustomClient";
 import {IAutoReaction} from "../IAutoReaction";
-import {MESSAGE} from "../../../Util/Message";
+import {Messages} from "../../../Util/Messages";
 import {API} from "../../../Util/Api";
 import {Keys} from "../../../Data/Keys";
 
@@ -34,16 +34,16 @@ export default class Emoji extends AAutoReaction {
     }
 
     execute(message: Message): Promise<void> {
-        return MESSAGE.parse(message)
+        return Messages.parse(message)
             .then(parsedContent => {
                 this.emojis.forEach((v,k) => {
                     if (v.exact){
                         const words = message.content.trim().split(/ +/);
                         if (words.some(word => word === k)){
-                            MESSAGE.react(message, v.emoji).then().catch(console.log);
+                            Messages.react(message, v.emoji).then().catch(console.log);
                         }
                     } else if (parsedContent.includes(k)) {
-                        MESSAGE.react(message, v.emoji).then().catch(console.log);
+                        Messages.react(message, v.emoji).then().catch(console.log);
                     }
                 });
             });

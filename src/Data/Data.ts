@@ -13,7 +13,28 @@ export class Data{
 
     constructor(client: CustomClient) {
         this.client = client;
-        this.setup(client);
+        this.setupSettings();
+        this.guilds = new Enmap({
+            name: "guilds",
+            autoFetch: true,
+            fetchAll: true,
+            cloneLevel: 'deep',
+            dataDir: dataDir,
+            autoEnsure: {
+                NAME: '',
+                ID: '',
+                PREFIX: this.settings.get(Keys.Guild.prefix),
+                LOG_CHANNEL_ID: '',
+                ANNOUNCEMENT_CHANNEL_ID: '',
+                CODEX_CHANNEL_ID: '',
+                ASSISTANT_CHANNEL_ID: '',
+                MEME_CHANNEL_ID: '',
+                TRIGGERS: false,
+                RANDOM_PERSON_URL: this.settings.get(Keys.Guild.randomPersonUrl),
+                RANDOM_MEME_URL: this.settings.get(Keys.Guild.randomMemeUrl),
+            }
+        });
+        this.guilds.changed(this.guildDataChangeListener);
     }
 
     readonly settings = new Enmap({
@@ -24,18 +45,7 @@ export class Data{
         dataDir: dataDir
     });
 
-    readonly guilds = new Enmap({
-        name: "guilds",
-        autoFetch: true,
-        fetchAll: true,
-        cloneLevel: 'deep',
-        dataDir: dataDir
-    });
-
-    private setup(client: CustomClient) {
-        this.guilds.changed(this.guildDataChangeListener);
-        this.setupSettings();
-    }
+    readonly guilds;
 
     private guildDataChangeListener = (keyName: string, oldValue: GuildData, newValue: GuildData) => {
         this.changes.emit('changed', keyName, oldValue, newValue);
@@ -84,24 +94,10 @@ export class Data{
     }
 
     public addGuild(guild: Guild){
-        if (!this.guilds.has(guild.id)) {
-
-            const guildData: GuildData = {
-                NAME: guild.name,
-                ID: guild.id,
-                PREFIX: this.settings.get(Keys.Guild.prefix),
-                LOG_CHANNEL_ID: '',
-                ANNOUNCEMENT_CHANNEL_ID: '',
-                CODEX_CHANNEL_ID: '',
-                ASSISTANT_CHANNEL_ID: '',
-                MEME_CHANNEL_ID: '',
-                RANDOM_PERSON_URL: this.settings.get(Keys.Guild.randomPersonUrl),
-                RANDOM_MEME_URL: this.settings.get(Keys.Guild.randomMemeUrl),
-            };
-            this.guilds.set(guild.id, guildData);
-        } else {
-            throw new Error(`Guild (${guild.id}) already has a datastore.`);
-        }
+        const newData: GuildData = this.guilds.get(guild.id);
+        newData.NAME =  guild.name;
+        newData.ID =  guild.name;
+        this.guilds.set(guild.id, newData);
     }
 
     public removeGuild(guild: Guild){

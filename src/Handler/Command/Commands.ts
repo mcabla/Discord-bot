@@ -2,7 +2,7 @@ import {CustomClient} from "../../Client/CustomClient";
 import fs from "fs";
 import {ICommand} from "./ICommand";
 import {Collection, Message} from "discord.js";
-import {LOG_CHANNEL_ID, PREFIX, STATUS_CHANNEL_ID} from "../../Data/Config/Config";
+import {PREFIX} from "../../Data/Config/Config";
 import {ACommand} from "./ACommand";
 import {LOG} from "../../Util/Log";
 import {IEventHandler} from "../IEventHandler";
