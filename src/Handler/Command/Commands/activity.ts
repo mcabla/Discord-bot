@@ -7,6 +7,7 @@ export default class Activity extends ACommand {
     description = 'Set the bot\'s activity!';
     usage = "";
     permissions = ['ADMINISTRATOR'];
+    hidden = true;
     execute(message: Message, args: string[]) {
         if (message.client instanceof CustomClient){
             if (message.client.data.settings.OWNER === message.author.id) {

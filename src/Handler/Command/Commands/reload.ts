@@ -6,6 +6,8 @@ export default class Ping extends ACommand {
     name = 'reload';
     description = 'Reload the auto reactions aliases';
     usage = '';
+    permissions = ['ADMINISTRATOR'];
+    hidden = true;
     execute(message: Message, args: string[]) {
         let client = message.client;
         if (client instanceof CustomClient){

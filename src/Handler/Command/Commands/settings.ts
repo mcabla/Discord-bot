@@ -17,7 +17,7 @@ export default class Settings extends ACommand {
             if (message.guild) {
                 if (key !== '') {
                     if (args.length > 0) {
-                        const value = args.shift() || '';
+                        const value = (args.shift() || '').trim();
                         client.data.updateGuildValue(message.guild.id, key, value);
                     } else {
                         const value = client.data.getGuildValue(message.guild?.id, key)

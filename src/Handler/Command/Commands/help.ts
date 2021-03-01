@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import {Collection, Message} from "discord.js";
 import {ICommand} from "../ICommand";
 import {PREFIX} from "../../../Data/Config/Config";
 import {ACommand} from "../ACommand";
@@ -11,11 +11,11 @@ export default class Help extends ACommand {
     execute(message: Message, args: string[]) {
         const data = [];
         // @ts-ignore
-        const commands = message.client.command.commands;
+        const commands: Collection<string, ACommand> = message.client.command.commands;
 
         if (!args.length) {
             data.push('Here\'s a list of all my commands:');
-            data.push(commands?.map((command: any) => command.name).join(', '));
+            data.push(commands?.filter(cmd => !cmd.hidden).map((command: any) => command.name).join(', '));
             data.push(`\nYou can send \`${PREFIX}help [command name]\` to get info on a specific command!`);
 
             return message.author.send(data, { split: true })

@@ -16,7 +16,7 @@ export abstract class ACommand implements ICommand {
     readonly bypassChannelIds: string[] = [];
     readonly bypassChannelIdKey: Keys.Guild = Keys.Guild.empty;
     private isSetup: boolean = false;
-
+    hidden = false;
     abstract execute(message: Message, args: string[]): void;
 
     setup(client: CustomClient): Promise<ICommand> {

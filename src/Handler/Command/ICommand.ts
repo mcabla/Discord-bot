@@ -13,6 +13,7 @@ export interface ICommand {
     readonly permissions: PermissionResolvable[];
     readonly bypassChannelIds: string[];
     readonly bypassChannelIdKey: Keys.Guild;
+    readonly hidden: boolean
     setup(client: CustomClient): Promise<ICommand>;
     execute(message: Message, args: string[]): void;
 }

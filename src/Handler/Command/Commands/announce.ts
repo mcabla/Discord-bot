@@ -10,9 +10,9 @@ import {Messages} from "../../../Util/Messages";
 export default class Announce extends ACommand  {
     name = 'announce';
     description = 'Maak een nieuwe aankondiging.';
-    usage = '[\'new\' voor een nieuw bericht,\'new-private\' voor een nieuw bericht dat niet gepubliceerd mag worden of id van het bericht dat je wilt bewerken] [Inhoud van het bericht]';
+    usage = '[\'new\' voor een nieuw bericht,\'new-private\' voor een nieuw bericht dat niet gepubliceerd mag worden of url van het bericht dat je wilt bewerken] [Inhoud van het bericht]';
     aliases = ['a'];
-    args = ['new or new-private or id of message that should be edited.', 'message content'];
+    args = ['new or new-private or url of message that should be edited.', 'message content'];
     cooldown = 5;
     permissions = ['ADMINISTRATOR'];
     guildOnly = true;

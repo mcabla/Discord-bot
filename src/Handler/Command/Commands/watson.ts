@@ -10,6 +10,7 @@ export default class Watson extends ACommand  {
     aliases = ['w'];
     cooldown = 1;
     bypassChannelIdKey = Keys.Guild.assistantChannelId;
+    hidden = true;
     execute(message: Message, args: string[]) {
         let text = args.join(' ');
         const author = message.author.toString();
