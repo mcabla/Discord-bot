@@ -7,18 +7,23 @@ import {API} from "../../../Util/Api";
 import {Commands} from "../../Command/Commands";
 import {Keys} from "../../../Data/Keys";
 import {GuildData} from "../../../Data/GuildData";
+import {ICommand} from "../../Command/ICommand";
+import {LOG} from "../../../Util/Log";
 
 interface ICommandTrigger {
     readonly id: number;
     readonly trigger: string;
     readonly command: string;
     readonly exact: boolean;
+    readonly cooldown: number;
 }
 
 export default class Command extends AAutoReaction {
     name = 'commandAutoReaction';
-    description = 'reacts with emojis';
+    description = 'reacts with a command';
+    cooldown = 0;
     private commands = new Collection<string, ICommandTrigger>();
+    readonly cooldowns = new Collection<string, Collection<string, number>>();
     setup(client: CustomClient): Promise<IAutoReaction> {
         const url = client.data.settings.get(Keys.Settings.autoReactionsCommandsUrl) || '';
         return super.setup(client)
@@ -54,14 +59,49 @@ export default class Command extends AAutoReaction {
                         if (v.exact){
                             const words = message.content.trim().split(/ +/);
                             if (words.some(word => word === k)){
-                                client.command.commands.get(v.command)?.execute(message, []);
+                                this.executeCommand(message, client.command.commands.get(v.command));
                             }
                         } else if (parsedContent.includes(k)) {
-                            client.command.commands.get(v.command)?.execute(message, []);
+                            this.executeCommand(message, client.command.commands.get(v.command));
                         }
                     });
                 });
         }
         return Promise.resolve();
+    }
+
+    private executeCommand(message: Message, command?: ICommand){
+        if (command === undefined) {
+            return;
+        }
+
+        if (command.cooldown > 0) {
+            if (!this.cooldowns.has(command.name)) {
+                this.cooldowns.set(command.name, new Collection<string, number>());
+            }
+
+            const now = Date.now();
+            const timestamps = this.cooldowns.get(command.name);
+            const cooldownAmount = (command.cooldown || 3) * 1000;
+
+            // @ts-ignore
+            if (timestamps.has(message.author.id)) {
+                // @ts-ignore
+                const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+                if (now < expirationTime) {
+                    const timeLeft = (expirationTime - now) / 1000;
+                    //return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${reaction.name}\` trigger.`);
+                    return LOG.sendToLogChannel(message.client,`Due to a cooldown \'${command.name}\' did not run for: ${message.url}`, false, message.channel)
+                }
+            } else {
+                // @ts-ignore
+                timestamps.set(message.author.id, now);
+                // @ts-ignore
+                setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+            }
+        }
+
+        command.execute(message, []);
     }
 }
