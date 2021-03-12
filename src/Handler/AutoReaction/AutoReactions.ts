@@ -11,6 +11,7 @@ import {Keys} from "../../Data/Keys";
 export class AutoReactions implements IEventHandler {
     readonly client: CustomClient;
     readonly autoReactions = new Collection<string, AAutoReaction>();
+    readonly cooldowns = new Collection<string, Collection<string, number>>();
     readonly triggerWords: string[] = [];
 
 
@@ -77,12 +78,43 @@ export class AutoReactions implements IEventHandler {
                 }
                 return [];
             }).then(triggered => {
-                triggered.map((reaction: IAutoReaction) => {
-                    reaction.execute(message)
-                        .then(() => LOG.sendToLogChannel(this.client,`Ran ${reaction.name} for: ${message.url}`, false, message.channel))
-                        .catch(error => LOG.sendToLogChannel(this.client, error, false, message.channel));
+                triggered.forEach((reaction: IAutoReaction) => {
+                    this.executeReaction(reaction, message);
                 })
             });
+    }
+
+    public executeReaction(reaction: IAutoReaction, message: Message) {
+        if (reaction.cooldown > 0) {
+            if (!this.cooldowns.has(reaction.name)) {
+                this.cooldowns.set(reaction.name, new Collection<string, number>());
+            }
+
+            const now = Date.now();
+            const timestamps = this.cooldowns.get(reaction.name);
+            const cooldownAmount = (reaction.cooldown || 3) * 1000;
+
+            // @ts-ignore
+            if (timestamps.has(message.author.id)) {
+                // @ts-ignore
+                const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+                if (now < expirationTime) {
+                    const timeLeft = (expirationTime - now) / 1000;
+                    //return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${reaction.name}\` trigger.`);
+                    return LOG.sendToLogChannel(this.client,`Due to a cooldown \'${reaction.name}\' did not run for: ${message.url}`, false, message.channel)
+                }
+            } else {
+                // @ts-ignore
+                timestamps.set(message.author.id, now);
+                // @ts-ignore
+                setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+            }
+        }
+
+        reaction.execute(message)
+            .then(() => LOG.sendToLogChannel(this.client,`Ran ${reaction.name} for: ${message.url}`, false, message.channel))
+            .catch(error => LOG.sendToLogChannel(this.client, error, false, message.channel));
     }
 
 }
