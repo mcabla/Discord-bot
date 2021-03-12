@@ -59,10 +59,10 @@ export default class Command extends AAutoReaction {
                         if (v.exact){
                             const words = message.content.trim().split(/ +/);
                             if (words.some(word => word === k)){
-                                this.executeCommand(message, client.command.commands.get(v.command));
+                                this.executeCommand(message,v, client.command.commands.get(v.command));
                             }
                         } else if (parsedContent.includes(k)) {
-                            this.executeCommand(message, client.command.commands.get(v.command));
+                            this.executeCommand(message,v, client.command.commands.get(v.command));
                         }
                     });
                 });
@@ -70,19 +70,19 @@ export default class Command extends AAutoReaction {
         return Promise.resolve();
     }
 
-    private executeCommand(message: Message, command?: ICommand){
+    private executeCommand(message: Message, trigger: ICommandTrigger, command?: ICommand){
         if (command === undefined) {
             return;
         }
 
-        if (command.cooldown > 0) {
-            if (!this.cooldowns.has(command.name)) {
-                this.cooldowns.set(command.name, new Collection<string, number>());
+        if (trigger.cooldown > 0) {
+            if (!this.cooldowns.has(trigger.id.toString())) {
+                this.cooldowns.set(trigger.id.toString(), new Collection<string, number>());
             }
 
             const now = Date.now();
-            const timestamps = this.cooldowns.get(command.name);
-            const cooldownAmount = (command.cooldown || 3) * 1000;
+            const timestamps = this.cooldowns.get(trigger.id.toString());
+            const cooldownAmount = (trigger.cooldown || 3) * 1000;
 
             // @ts-ignore
             if (timestamps.has(message.author.id)) {
@@ -92,7 +92,7 @@ export default class Command extends AAutoReaction {
                 if (now < expirationTime) {
                     const timeLeft = (expirationTime - now) / 1000;
                     //return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${reaction.name}\` trigger.`);
-                    return LOG.sendToLogChannel(message.client,`Due to a cooldown \'${command.name}\' did not run for: ${message.url}`, false, message.channel)
+                    return LOG.sendToLogChannel(message.client,`Due to a cooldown \'${trigger.id.toString()}\' did not run for: ${message.url}`, false, message.channel)
                 }
             } else {
                 // @ts-ignore
