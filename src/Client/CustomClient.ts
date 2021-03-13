@@ -96,9 +96,11 @@ export class CustomClient extends Client {
     }
 
     private meme = () => {
-        const guilds = this.guilds.cache.map(guild => guild);
-        guilds.forEach(guild => {
-            if (this.data.guilds.has(guild.id) && this.data.guilds.get(guild.id).TRIGGERS === 'true' && this.data.guilds.get(guild.id).MEME_CHANNEL_ID.length > 0) {
+        this.guilds.cache
+            .filter(guild => this.data.guilds.has(guild.id)
+                && this.data.guilds.get(guild.id).TRIGGERS === 'true'
+                && this.data.guilds.get(guild.id).MEME_CHANNEL_ID.length > 0)
+            .forEach(guild => {
                 this.guilds.fetch(guild.id)
                     .then(guild => guild.channels.cache
                         .filter((channel) => channel.type === 'voice')
@@ -111,7 +113,6 @@ export class CustomClient extends Client {
                         }
                     })
                     .catch(console.log);
-            }
         });
     }
 }
