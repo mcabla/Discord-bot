@@ -10,7 +10,7 @@ import {Keys} from "../../Data/Keys";
 
 export class AutoReactions implements IEventHandler {
     readonly client: CustomClient;
-    readonly autoReactions = new Collection<string, AAutoReaction>();
+    readonly autoReactions = new Collection<string, IAutoReaction>();
     readonly cooldowns = new Collection<string, Collection<string, number>>();
     readonly triggerWords: string[] = [];
 
@@ -26,18 +26,17 @@ export class AutoReactions implements IEventHandler {
             import(`./AutoReactions/${file}`)
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
-                    ar.setup(client).then((reaction) => {
-                        this.autoReactions.set(reaction.name, reaction);
+                    return ar.setup(client)
+                }).then((reaction) => {
+                    this.autoReactions.set(reaction.name, reaction);
 
-                        if (!this.triggerWords.some(v => v.includes(reaction.name))){
-                            this.triggerWords.push(reaction.name);
-                        }
-                        reaction.aliases
-                            .filter(alias => !this.triggerWords.some(v => v.includes(alias)))
-                            .forEach(alias => this.triggerWords.push(alias));
-                    });
+                    if (!this.triggerWords.some(v => v.includes(reaction.name))){
+                        this.triggerWords.push(reaction.name);
+                    }
+                    reaction.aliases
+                        .filter(alias => !this.triggerWords.some(v => v.includes(alias)))
+                        .forEach(alias => this.triggerWords.push(alias));
                 }).catch(console.log);
-
         }
     }
 

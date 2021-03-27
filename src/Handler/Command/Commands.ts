@@ -11,7 +11,7 @@ import {Keys} from "../../Data/Keys";
 
 export class Commands implements IEventHandler {
     readonly client: CustomClient;
-    readonly commands = new Collection<string, ACommand>();
+    readonly commands = new Collection<string, ICommand>();
     readonly cooldowns = new Collection<string, Collection<string, number>>();
     static escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -26,14 +26,14 @@ export class Commands implements IEventHandler {
             import(`./Commands/${file}`)
                 .then(({default: command}) => {
                     const cmd: ACommand = new command();
-                    cmd.setup(client).then(c => {
-                        this.commands.set(cmd.name, cmd);
-                    });
+                    return cmd.setup(client);
+                }).then(c => {
+                    this.commands.set(c.name, c);
                 }).catch(console.log);
         }
     }
 
-    public static bypassChannelCommand(message: Message, commands: Collection<string, ACommand>): string {
+    public static bypassChannelCommand(message: Message, commands: Collection<string, ICommand>): string {
         let cmd: ICommand | undefined = commands.find(cmd => cmd.bypassChannelIds.length > 0 && cmd.bypassChannelIds.some(bypassId =>  bypassId.length > 0 && bypassId === message.channel.id));
         return cmd?.name ?? "";
     }
