@@ -27,10 +27,10 @@ export default class Emoji extends AAutoReaction {
                     this.emojis.set(trigger.trigger, trigger);
                 }
             }).then(()=>{
+                this.aliases.length = 0;
                 this.aliases = this.emojis.keyArray();
                 return this;
             });
-
     }
 
     execute(message: Message): Promise<void> {

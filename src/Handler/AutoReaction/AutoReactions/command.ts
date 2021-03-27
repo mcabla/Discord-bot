@@ -34,6 +34,7 @@ export default class Command extends AAutoReaction {
                     this.commands.set(trigger.trigger, trigger);
                 }
             }).then(()=>{
+                this.aliases.length = 0;
                 this.aliases = this.commands.keyArray();
                 return this;
             });

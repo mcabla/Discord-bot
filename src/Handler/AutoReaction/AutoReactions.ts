@@ -27,33 +27,27 @@ export class AutoReactions implements IEventHandler {
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
                     return ar.setup(client)
-                }).then((reaction) => {
-                    this.autoReactions.set(reaction.name, reaction);
-
-                    if (!this.triggerWords.some(v => v.includes(reaction.name))){
-                        this.triggerWords.push(reaction.name);
-                    }
-                    reaction.aliases
-                        .filter(alias => !this.triggerWords.some(v => v.includes(alias)))
-                        .forEach(alias => this.triggerWords.push(alias));
-                }).catch(console.log);
+                }).then(this.addAutoReaction)
+                .catch(console.log);
         }
+    }
+
+    private addAutoReaction(reaction: IAutoReaction) {
+        this.autoReactions.set(reaction.name, reaction);
+
+        if (!this.triggerWords.some(v => v.includes(reaction.name))){
+            this.triggerWords.push(reaction.name);
+        }
+        reaction.aliases
+            .filter(alias => !this.triggerWords.some(v => v.includes(alias)))
+            .forEach(alias => this.triggerWords.push(alias));
     }
 
     public reload(){
         this.triggerWords.length = 0;
-        this.autoReactions.forEach((autoReaction,k) => {
-            autoReaction.setup(this.client).then((reaction) => {
-                if (!this.triggerWords.some(v => v.includes(reaction.name))){
-                    this.triggerWords.push(reaction.name);
-                }
-                reaction.aliases.forEach(alias => {
-                    if (!this.triggerWords.some(v => v.includes(alias))) {
-                        this.triggerWords.push(alias);
-                    }
-                });
-            });
-        })
+        const oldAutoReactions = this.autoReactions.clone();
+        this.autoReactions.clear();
+        oldAutoReactions.forEach(this.addAutoReaction);
     }
 
     public handleMessage(message: Message): Promise<void> {
@@ -78,12 +72,12 @@ export class AutoReactions implements IEventHandler {
                 return [];
             }).then(triggered => {
                 triggered.forEach((reaction: IAutoReaction) => {
-                    this.executeReaction(reaction, message);
+                    this.executeReaction(reaction, message).then();
                 })
             });
     }
 
-    public executeReaction(reaction: IAutoReaction, message: Message) {
+    public executeReaction(reaction: IAutoReaction, message: Message): Promise<Message> {
         if (reaction.cooldown > 0) {
             if (!this.cooldowns.has(reaction.name)) {
                 this.cooldowns.set(reaction.name, new Collection<string, number>());
@@ -111,7 +105,7 @@ export class AutoReactions implements IEventHandler {
             }
         }
 
-        reaction.execute(message)
+        return reaction.execute(message)
             .then(() => LOG.sendToLogChannel(this.client,`Ran ${reaction.name} for: ${message.url}`, false, message.channel))
             .catch(error => LOG.sendToLogChannel(this.client, error, false, message.channel));
     }
