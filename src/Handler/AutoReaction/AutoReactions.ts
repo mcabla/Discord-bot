@@ -14,7 +14,6 @@ export class AutoReactions implements IEventHandler {
     readonly cooldowns = new Collection<string, Collection<string, number>>();
     readonly triggerWords: string[] = [];
 
-
     constructor(client: CustomClient) {
         this.client = client;
         this.setup(client);
@@ -27,8 +26,9 @@ export class AutoReactions implements IEventHandler {
                 .then(({default: autoReaction}) => {
                     const ar: IAutoReaction = new autoReaction();
                     return ar.setup(client)
-                }).then(this.addAutoReaction)
-                .catch(console.log);
+                }).then(reaction => {
+                    this.addAutoReaction(reaction);
+                }).catch(console.log);
         }
     }
 
