@@ -20,10 +20,11 @@ export default class Emoji extends AAutoReaction {
     setup(client: CustomClient): Promise<IAutoReaction> {
         const url = client.data.settings.get(Keys.Settings.autoReactionsEmojisUrl) || '';
         return super.setup(client)
-            .then(() => API.get<IEmojiTrigger[]>(url))
+            .then(() => API.getResponse(url))
             .then(res => {
+                const json = JSON.parse(res.trim()) as IEmojiTrigger[];
                 this.emojis.clear();
-                for (const trigger of res){
+                for (const trigger of json){
                     this.emojis.set(trigger.trigger, trigger);
                 }
             }).then(()=>{
