@@ -23,7 +23,7 @@
     "eslint": "^7.32.0",
     "express": "^4.17.1",
     "ffmpeg": "0.0.4",
-    "ffmpeg-static": "^4.2.7",
+    "ffmpeg-static": "^4.4.1",
     "fluent-ffmpeg": "^2.1.2",
     "ibm-watson": "^6.2.1",
     "libsodium-wrappers": "^0.7.8",
