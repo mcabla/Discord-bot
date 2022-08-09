@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.7.0",
+    "@discordjs/opus": "^0.8.0",
     "@types/node": "^14.18.10",
     "@discordjs/opus": "^0.7.0",
     "@types/node": "^14.18.5",
