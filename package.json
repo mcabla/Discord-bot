@@ -21,7 +21,7 @@
     "dotenv": "^8.6.0",
     "enmap": "^5.8.7",
     "eslint": "^7.32.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "ffmpeg": "0.0.4",
     "ffmpeg-static": "^4.4.1",
     "fluent-ffmpeg": "^2.1.2",
